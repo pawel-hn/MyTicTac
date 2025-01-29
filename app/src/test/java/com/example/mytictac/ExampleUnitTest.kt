@@ -1,4 +1,4 @@
-package com.example.mytictac
+package com.mytictac
 
 import org.junit.Test
 

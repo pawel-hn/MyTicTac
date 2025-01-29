@@ -1,4 +1,4 @@
-package com.example.mytictac.tictacgame
+package com.mytictac.tictacgame
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

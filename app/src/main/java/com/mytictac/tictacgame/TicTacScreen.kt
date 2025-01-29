@@ -1,4 +1,4 @@
-package com.example.mytictac.tictacgame
+package com.mytictac.tictacgame
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D

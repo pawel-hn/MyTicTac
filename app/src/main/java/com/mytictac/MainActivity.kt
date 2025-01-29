@@ -1,4 +1,4 @@
-package com.example.mytictac
+package com.mytictac
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.mytictac.tictacgame.TicTacScreen
+import com.mytictac.tictacgame.TicTacScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

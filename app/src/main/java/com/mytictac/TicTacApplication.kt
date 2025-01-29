@@ -1,4 +1,4 @@
-package com.example.mytictac
+package com.mytictac
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

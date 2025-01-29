@@ -1,4 +1,4 @@
-package com.example.mytictac.tictacgame
+package com.mytictac.tictacgame
 
 import androidx.compose.ui.geometry.Offset
 

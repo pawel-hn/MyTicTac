@@ -1,4 +1,4 @@
-package com.example.mytictac.ui.theme
+package com.mytictac.ui.theme
 
 import android.app.Activity
 import android.os.Build

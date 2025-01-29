@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mytictac"
+    namespace = "com.mytictac"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.mytictac"
+        applicationId = "com.mytictac"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

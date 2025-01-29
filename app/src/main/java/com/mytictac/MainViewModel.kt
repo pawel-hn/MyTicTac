@@ -1,4 +1,4 @@
-package com.example.mytictac
+package com.mytictac
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.example.mytictac
+package com.mytictac
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
