@@ -52,7 +52,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.google.hilt.navigation.compose)
-    implementation(libs.androidx.core.splashscreen)
 
     // Hilt
     implementation(libs.google.hilt.android)
