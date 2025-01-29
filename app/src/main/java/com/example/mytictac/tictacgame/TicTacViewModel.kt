@@ -126,7 +126,6 @@ enum class Field(val id: Int) {
     Nine(33)
 }
 
-
 val victories = setOf(
     // Wiersze
     setOf(Field.One, Field.Two, Field.Three),
