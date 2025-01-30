@@ -91,3 +91,5 @@ lint/tmp/
 .idea/
 App/.idea/
 *.DS_Store
+
+deploymentTargetSelector.xml
