@@ -28,19 +28,13 @@ fun SplashScreen() {
         label = "",
         transitionSpec = { tween(1000) }
     ) {
-        when(it) {
-            false -> 0F
-            true -> 1F
-        }
+        if (it) 1F else 0F
     }
     val animateSize by transition.animateFloat(
         label = "",
         transitionSpec = { tween(1000) }
     ) {
-        when(it) {
-            false -> 3F
-            true -> 1F
-        }
+        if (it) 1F else 3F
     }
 
     LaunchedEffect(Unit) {
