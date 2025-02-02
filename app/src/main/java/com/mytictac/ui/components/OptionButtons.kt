@@ -7,7 +7,6 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mytictac.ui.theme.Padding
 
 @Composable
 fun OptionButton(
@@ -84,7 +82,6 @@ fun OptionButton(
             colors = ButtonDefaults.buttonColors(containerColor = animatePrimaryColor.value),
             shape = shape,
             border = BorderStroke(width = 1.dp, color = animateSecondaryColor.value),
-            contentPadding = PaddingValues(horizontal = Padding.medium, vertical = Padding.small),
         ) {
             Text(
                 text = text,

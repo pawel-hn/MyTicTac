@@ -12,31 +12,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytictac.ui.components.OptionButton
-import com.mytictac.ui.components.StartButton
+import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
-import com.mytictac.ui.theme.buttonEnabledPrimary
-import com.mytictac.ui.theme.buttonEnabledSecondary
 
 
 @Composable
 fun StartScreen() {
-    var playerCount by remember { mutableStateOf(2) }
+    var playerCount by remember { mutableIntStateOf(2) }
     var difficulty by remember { mutableStateOf("Łatwy") }
     val difficultyLevels = listOf("Łatwy", "Niemożliwy")
 
@@ -68,12 +65,12 @@ fun StartScreen() {
                 repeat(2) {
                     OptionButton(
                         modifier = Modifier.weight(0.5F),
-                        text = if (it ==1) "1 gracz" else "2 graczy",
+                        text = if (it == 1) "1 gracz" else "2 graczy",
                         width = width * 0.4F,
                         isSelected = playerCount == it,
                         onClick = { playerCount = it },
-                        enabledPrimaryColor = buttonEnabledPrimary,
-                        enabledSecondaryColor = buttonEnabledSecondary,
+                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveSecondary,
+                        enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
                     )
                 }
             }
@@ -97,8 +94,9 @@ fun StartScreen() {
                             height = 40.dp,
                             isSelected = difficulty == level,
                             onClick = { difficulty = level },
-                            enabledPrimaryColor = Color(0xFF607D8B),
-                            enabledSecondaryColor = Color(0xFFB0BEC5),
+                            enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                            enabledSecondaryColor =
+                            MyTicTacTheme.colours.interactiveTertiaryContent,
                         )
                     }
 
@@ -107,13 +105,13 @@ fun StartScreen() {
             }
         }
         OptionButton(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = Padding.extraLarge),
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = Padding.extraExtraLarge),
             width = width / 2F,
             text = "Start",
             onClick = { /*TODO*/ },
             isSelected = true,
-            enabledPrimaryColor = Color(0xFF1E88E5),
-            enabledSecondaryColor = Color(0xFFB3E5FC),
+            enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
+            enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
         )
     }
 }
@@ -126,3 +124,4 @@ fun MainScreenPreview() {
         StartScreen()
     }
 }
+

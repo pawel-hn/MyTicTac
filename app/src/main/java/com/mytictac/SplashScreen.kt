@@ -17,8 +17,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import com.mytictac.ui.theme.MyTicTacTheme
 
 @Composable
 fun SplashScreen() {
@@ -44,16 +45,20 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.LightGray),
+            .background(color = MyTicTacTheme.colours.backgroundScreen),
         contentAlignment = Alignment.Center
     ) {
-        val fontSize = 30.sp * animateSize
+
+        val style = TextStyle(
+            fontSize = 30.sp * animateSize,
+            color = MyTicTacTheme.colours.contentPrimary
+        )
         Column(
             modifier = Modifier.alpha(animateAlpha)
         ) {
-            Text(text = "T I C", fontSize = fontSize)
-            Text(text = "T A C", fontSize = fontSize)
-            Text(text = "T O E", fontSize = fontSize)
+            Text(text = "T I C", style = style)
+            Text(text = "T A C", style = style)
+            Text(text = "T O E", style = style)
         }
     }
 }
