@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -33,10 +32,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mytictac.ui.debouncedFieldClick
 import com.mytictac.ui.theme.MyTicTacTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -109,23 +108,25 @@ fun TicTacToeField(
     }
     LaunchedEffect(state.winningSet) {
         if (state.winningSet != null) {
-           winningLineAnimation.animateTo(20F,
-               tween(LINE_ANIMATION_DURATION, LINE_ANIMATION_DURATION)
-           )
+            winningLineAnimation.animateTo(
+                20F,
+                tween(LINE_ANIMATION_DURATION, LINE_ANIMATION_DURATION)
+            )
         }
     }
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(true) {
-                detectTapGestures { position ->
+            .debouncedFieldClick(
+                pointerInputKey = true,
+                onClick = { position ->
                     fieldController.getFieldXYFromOffset(position)?.let {
                         onTap(it.id)
                         scope.animateFloatToOne(animations[getIndex(it.id)])
                     }
                 }
-            }
+            )
     ) {
         drawTicTacToeField(lineColor = Color.LightGray, field = fieldController.fieldPitch)
 
@@ -194,7 +195,6 @@ fun DrawScope.drawCross(fieldXY: FieldXY, animate: Float) {
     )
 }
 
-
 fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
     val endOffset = 60F
     drawArc(
@@ -210,7 +210,6 @@ fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
         color = Color.Red,
     )
 }
-
 
 fun DrawScope.drawTicTacToeField(
     field: List<Pair<Offset, Offset>>,
@@ -241,6 +240,3 @@ fun getIndex(id: Int) =
         33 -> 8
         else -> -1
     }
-
-
-
