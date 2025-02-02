@@ -2,8 +2,6 @@ package com.mytictac.start
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -19,10 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,18 +25,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Player
+import com.mytictac.data.PlayerCount
 import com.mytictac.ui.components.OptionButton
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
 
 
 @Composable
-fun StartScreen() {
-    var playerCount by remember { mutableIntStateOf(1) }
-    var difficulty by remember { mutableStateOf(DifficultyLevel.EASY) }
-    var firstPlayer by remember { mutableStateOf(Player.PlayerO) }
+fun StartScreen(
+    viewModel: StartScreenViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -73,8 +70,10 @@ fun StartScreen() {
                         modifier = Modifier.weight(0.5F),
                         text = if (it == 0) "1 gracz" else "2 graczy",
                         width = width * 0.4F,
-                        isSelected = playerCount == it + 1,
-                        onClick = { playerCount = it + 1 },
+                        isSelected = state.playerCount == PlayerCount.fromInt(it + 1),
+                        onClick = {
+                            viewModel.onPlayerCountChanged(PlayerCount.fromInt(it + 1))
+                        },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveSecondary,
                         enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
                     )
@@ -84,11 +83,11 @@ fun StartScreen() {
             StartOptions(
                 modifier = Modifier.fillMaxWidth(),
                 maxWidth = width,
-                difficultyLevels = difficulty,
-                players = playerCount,
-                firstPlayer = firstPlayer,
-                onDifficultyChanged = { difficulty = it },
-                onPlayerChanged = { firstPlayer = it }
+                difficultyLevel = state.difficultyLevel,
+                playerCount = state.playerCount,
+                firstPlayer = state.firstPlayer,
+                onDifficultyChanged = viewModel::onDifficultyChanged,
+                onPlayerChanged = viewModel::onFirstPlayerChanged
             )
         }
 
@@ -109,15 +108,15 @@ fun StartScreen() {
 fun StartOptions(
     modifier: Modifier = Modifier,
     maxWidth: Dp,
-    difficultyLevels: DifficultyLevel,
-    players: Int,
+    difficultyLevel: DifficultyLevel,
+    playerCount: PlayerCount,
     firstPlayer: Player,
     onDifficultyChanged: (DifficultyLevel) -> Unit,
     onPlayerChanged: (Player) -> Unit,
 ) {
     AnimatedContent(
         modifier = modifier,
-        targetState = players,
+        targetState = playerCount,
         transitionSpec = {
             if (targetState < initialState) {
                 slideInHorizontally { width -> width } togetherWith
@@ -130,46 +129,50 @@ fun StartOptions(
             )
         },
         label = ""
-    ) {
-        if (it == 1) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Padding.small)
-            ) {
-                Text(text = "Poziom trudności:")
-                DifficultyLevel.entries.forEach { level ->
-                    OptionButton(
-                        text = stringResource(level.value),
-                        width = maxWidth / 3F,
-                        textSize = 12.sp,
-                        height = 40.dp,
-                        isSelected = difficultyLevels == level,
-                        onClick = { onDifficultyChanged(level) },
-                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                        enabledSecondaryColor =
-                        MyTicTacTheme.colours.interactiveTertiaryContent,
-                    )
+    ) { players ->
+        when (players) {
+            PlayerCount.ONE -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(Padding.small)
+                ) {
+                    Text(text = "Poziom trudności:")
+                    DifficultyLevel.entries.forEach { level ->
+                        OptionButton(
+                            text = stringResource(level.value),
+                            width = maxWidth / 3F,
+                            textSize = 12.sp,
+                            height = 40.dp,
+                            isSelected = difficultyLevel == level,
+                            onClick = { onDifficultyChanged(level) },
+                            enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                            enabledSecondaryColor =
+                            MyTicTacTheme.colours.interactiveTertiaryContent,
+                        )
+                    }
                 }
             }
-        } else {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Padding.small)
-            ) {
-                Text(text = "Kto zaczyna:")
-                Player.entries.forEach { player ->
-                    OptionButton(
-                        text = stringResource(player.label),
-                        width = maxWidth / 3F,
-                        textSize = 12.sp,
-                        height = 40.dp,
-                        isSelected = player == firstPlayer,
-                        onClick = { onPlayerChanged(player) },
-                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                        enabledSecondaryColor =
-                        MyTicTacTheme.colours.interactiveTertiaryContent,
-                    )
+
+            PlayerCount.TWO -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(Padding.small)
+                ) {
+                    Text(text = "Kto zaczyna:")
+                    Player.entries.forEach { player ->
+                        OptionButton(
+                            text = stringResource(player.label),
+                            width = maxWidth / 3F,
+                            textSize = 12.sp,
+                            height = 40.dp,
+                            isSelected = player == firstPlayer,
+                            onClick = { onPlayerChanged(player) },
+                            enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                            enabledSecondaryColor =
+                            MyTicTacTheme.colours.interactiveTertiaryContent,
+                        )
+                    }
                 }
             }
         }
