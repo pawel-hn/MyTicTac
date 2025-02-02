@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mytictac.ui.theme.MyTicTacTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,6 @@ fun TicTacScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(WindowInsets.systemBars.asPaddingValues()),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -57,6 +57,7 @@ fun TicTacScreen() {
         Text(
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
             text = "Current player: ${state.currentPLayer} Winner: ${state.winner}",
+            color = MyTicTacTheme.colours.contentPrimary,
             textAlign = TextAlign.Center
         )
 
@@ -99,7 +100,6 @@ fun TicTacToeField(
     val scope = rememberCoroutineScope()
     var animations by remember { mutableStateOf(emptyAnimations()) }
 
-
     LaunchedEffect(state.shouldResetAnimations) {
         if (state.shouldResetAnimations) {
             animations = emptyAnimations()
@@ -107,7 +107,7 @@ fun TicTacToeField(
         }
     }
 
-
+    val lineColor = MyTicTacTheme.colours.contentPrimary
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -120,7 +120,7 @@ fun TicTacToeField(
                 }
             }
     ) {
-        drawTicTacToeField()
+        drawTicTacToeField(lineColor = lineColor)
 
         state.playerX.forEach { field ->
             drawCross(
@@ -189,11 +189,13 @@ fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
 }
 
 
-fun DrawScope.drawTicTacToeField() {
+fun DrawScope.drawTicTacToeField(
+    lineColor: Color
+) {
     val lineLength = size.width * 0.7F
     // first x line
     drawLine(
-        color = Color.Black,
+        color = lineColor,
         start = Offset(
             x = center.x - lineLength / 2,
             y = center.y - lineLength / 6
@@ -206,7 +208,7 @@ fun DrawScope.drawTicTacToeField() {
     )
     // second x
     drawLine(
-        color = Color.Black,
+        color = lineColor,
         start = Offset(
             x = center.x - lineLength / 2,
             y = center.y + lineLength / 6
@@ -219,7 +221,7 @@ fun DrawScope.drawTicTacToeField() {
     )
     // first y
     drawLine(
-        color = Color.Black,
+        color = lineColor,
         start = Offset(
             x = center.x - lineLength / 6,
             y = center.y - lineLength / 2
@@ -232,7 +234,7 @@ fun DrawScope.drawTicTacToeField() {
     )
     // second y
     drawLine(
-        color = Color.Black,
+        color = lineColor,
         start = Offset(
             x = center.x + lineLength / 6,
             y = center.y - lineLength / 2

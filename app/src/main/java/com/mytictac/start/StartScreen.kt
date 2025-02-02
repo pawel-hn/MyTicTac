@@ -13,19 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Player
@@ -37,8 +35,19 @@ import com.mytictac.ui.theme.Padding
 
 @Composable
 fun StartScreen(
-    viewModel: StartScreenViewModel = hiltViewModel()
+    viewModel: StartScreenViewModel,
+    router: StartRouter
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.startScreenEvent.collect {
+            when (it) {
+                StartScreenUIEvent.StartGame -> router.onStartGame()
+            }
+        }
+    }
+
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     BoxWithConstraints(
@@ -51,14 +60,15 @@ fun StartScreen(
 
         Text(
             modifier = Modifier.align(Alignment.TopCenter),
-            text = "T I C T A C T O E", fontSize = 24.sp
+            text = "T I C T A C T O E", fontSize = 24.sp,
+            color = MyTicTacTheme.colours.contentPrimary,
         )
 
         Column(
             modifier = Modifier.offset { IntOffset(x = 0, y = (height.toPx() / 4).toInt()) },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Liczba graczy:")
+            Text(text = "Liczba graczy:",color = MyTicTacTheme.colours.contentPrimary,)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +106,7 @@ fun StartScreen(
                 .padding(bottom = Padding.extraExtraLarge),
             width = width / 2F,
             text = "Start",
-            onClick = { /*TODO*/ },
+            onClick = viewModel::onStartGame,
             isSelected = true,
             enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
             enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
@@ -180,10 +190,4 @@ fun StartOptions(
 }
 
 
-@Preview
-@Composable
-fun MainScreenPreview() {
-    MaterialTheme {
-        StartScreen()
-    }
-}
+

@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
                     Crossfade(
                         modifier = Modifier
                             .fillMaxSize()
+                            .background(color = MyTicTacTheme.colours.backgroundScreen)
                             .statusBarsPadding(),
                         targetState = splash,
                         animationSpec = tween(1000),
@@ -39,7 +41,7 @@ class MainActivity : ComponentActivity() {
                         if (showSplash) {
                             SplashScreen()
                         } else {
-                            StartScreen()
+                            AppNavGraph()
                         }
                     }
                 }
