@@ -22,12 +22,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytictac.ui.components.OptionButton
 import com.mytictac.ui.components.StartButton
 import com.mytictac.ui.theme.Padding
+import com.mytictac.ui.theme.buttonEnabledPrimary
+import com.mytictac.ui.theme.buttonEnabledSecondary
 
 
 @Composable
@@ -51,56 +55,65 @@ fun StartScreen() {
         )
 
         Column(
-            modifier = Modifier.offset { IntOffset(x = 0, y = (height.toPx() / 3).toInt()) },
+            modifier = Modifier.offset { IntOffset(x = 0, y = (height.toPx() / 4).toInt()) },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Liczba graczy:")
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = Padding.medium),
+                    .padding(vertical = Padding.large),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OptionButton(
-                    modifier = Modifier.weight(0.5F),
-                    text = "1 gracz",
-                    width = width.value * 0.4F,
-                    isSelected = playerCount == 1,
-                    onClick = { playerCount = 1 }
-                )
-
-                OptionButton(
-                    modifier = Modifier.weight(0.5F),
-                    text = "2 graczy",
-                    isSelected = playerCount == 2,
-                    width = width.value * 0.4F,
-                    onClick = { playerCount = 2 }
-                )
+                repeat(2) {
+                    OptionButton(
+                        modifier = Modifier.weight(0.5F),
+                        text = if (it ==1) "1 gracz" else "2 graczy",
+                        width = width * 0.4F,
+                        isSelected = playerCount == it,
+                        onClick = { playerCount = it },
+                        enabledPrimaryColor = buttonEnabledPrimary,
+                        enabledSecondaryColor = buttonEnabledSecondary,
+                    )
+                }
             }
 
             AnimatedVisibility(
+                modifier = Modifier.fillMaxWidth().padding(Padding.large),
                 visible = playerCount == 1,
                 enter = fadeIn(animationSpec = tween(700)),
                 exit = fadeOut(animationSpec = tween(700))
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(Padding.large),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(Padding.small)
                 ) {
                     Text(text = "Poziom trudności:")
                     difficultyLevels.forEach { level ->
-                        Button(onClick = { difficulty = level }) {
-                            Text(text = level)
-                        }
+                        OptionButton(
+                            text = level,
+                            width = width / 3F,
+                            textSize = 12.sp,
+                            height = 40.dp,
+                            isSelected = difficulty == level,
+                            onClick = { difficulty = level },
+                            enabledPrimaryColor = Color(0xFF607D8B),
+                            enabledSecondaryColor = Color(0xFFB0BEC5),
+                        )
                     }
 
                 }
 
             }
         }
-        StartButton(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = Padding.extraLarge)
+        OptionButton(
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = Padding.extraLarge),
+            width = width / 2F,
+            text = "Start",
+            onClick = { /*TODO*/ },
+            isSelected = true,
+            enabledPrimaryColor = Color(0xFF1E88E5),
+            enabledSecondaryColor = Color(0xFFB3E5FC),
         )
     }
 }
