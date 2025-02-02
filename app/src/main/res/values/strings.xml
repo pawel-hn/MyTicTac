@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MyTicTac</string>
+    <string name="difficulty_level_easy">Easy</string>
+    <string name="difficulty_level_impossible">Impossible</string>
+    <string name="first_player_o"> O Circle O</string>
+    <string name="first_player_x">X Cross X</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.mytictac.tictacgame
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.mytictac.data.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,37 +26,37 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
                 val tapsX = gameState.playerX.toMutableList()
                 val tapsO = gameState.playerO.toMutableList()
                 val field = Field.entries.first { it.id == id }
-                val currentPLayer: Players
+                val currentPLayer: Player
 
                 when (gameState.currentPLayer) {
-                    Players.PlayerX -> {
+                    Player.PlayerX -> {
                         tapsX.add(field)
                         if (checkIfWin(tapsX)) {
 
                             return@update GameState(
                                 playerO = tapsO,
                                 playerX = tapsX,
-                                currentPLayer = Players.PlayerO,
-                                winner = Players.PlayerX,
+                                currentPLayer = Player.PlayerO,
+                                winner = Player.PlayerX,
                                 shouldResetAnimations = false
                             )
                         }
-                        currentPLayer = Players.PlayerO
+                        currentPLayer = Player.PlayerO
                     }
 
-                    Players.PlayerO -> {
+                    Player.PlayerO -> {
                         tapsO.add(field)
                         if (checkIfWin(tapsO)) {
                             return@update GameState(
                                 playerO = tapsO,
                                 playerX = tapsX,
-                                currentPLayer = Players.PlayerX,
-                                winner = Players.PlayerO,
+                                currentPLayer = Player.PlayerX,
+                                winner = Player.PlayerO,
                                 shouldResetAnimations = false
                             )
 
                         }
-                        currentPLayer = Players.PlayerX
+                        currentPLayer = Player.PlayerX
                     }
                 }
                 GameState(
@@ -77,7 +77,6 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setDefault() {
-        Log.d("PHN", "setDefault")
         _state.update {
             tappedFields.removeAll { true }
             startState
@@ -91,28 +90,21 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
     }
 }
 
-data class ResetAnimations(val reset: Boolean)
-
 data class GameState(
-    val currentPLayer: Players,
+    val currentPLayer: Player,
     val playerX: List<Field>,
     val playerO: List<Field>,
-    val winner: Players?,
+    val winner: Player?,
     val shouldResetAnimations: Boolean
 )
 
 val startState = GameState(
-    currentPLayer = Players.PlayerO,
+    currentPLayer = Player.PlayerO,
     playerX = emptyList(),
     playerO = emptyList(),
     winner = null,
     shouldResetAnimations = false,
 )
-
-enum class Players {
-    PlayerX,
-    PlayerO
-}
 
 enum class Field(val id: Int) {
     One(11),

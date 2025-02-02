@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+const val BUTTON_TRANSITION = 700
+
 @Composable
 fun OptionButton(
     modifier: Modifier = Modifier,
@@ -45,13 +47,13 @@ fun OptionButton(
 
     val animatePrimaryColor = transition.animateColor(
         label = "",
-        transitionSpec = { tween(700) }
+        transitionSpec = { tween(BUTTON_TRANSITION) }
     ) { selectedState ->
         if (selectedState) enabledPrimaryColor else Color.LightGray
     }
     val animateSecondaryColor = transition.animateColor(
         label = "",
-        transitionSpec = { tween(700) }
+        transitionSpec = { tween(BUTTON_TRANSITION) }
         ) { selectedState ->
         if (selectedState)  enabledSecondaryColor else Color.Gray
     }
