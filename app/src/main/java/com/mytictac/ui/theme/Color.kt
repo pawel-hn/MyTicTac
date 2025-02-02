@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 data class TicTacColors(
     val backgroundScreen: Color,
     val contentPrimary: Color,
+    val contentSecondary: Color,
     val interactivePrimary: Color,
     val interactivePrimaryContent: Color,
     val interactiveSecondary: Color,
@@ -19,6 +20,7 @@ data class TicTacColors(
 val TicTacLightColors = TicTacColors(
     backgroundScreen = Color.White,
     contentPrimary = Color.Black,
+    contentSecondary = Color.Gray,
     interactivePrimary = Color(0xFF1E88E5),
     interactivePrimaryContent =Color(0xFFB3E5FC),
     interactiveSecondary = Color(0xFF2E7D32),
@@ -30,6 +32,7 @@ val TicTacLightColors = TicTacColors(
 val TicTacDarkColors = TicTacColors(
     backgroundScreen = Color.Black,
     contentPrimary = Color.White,
+    contentSecondary = Color.LightGray,
     interactivePrimary = Color(0xFF1E88E5),
     interactivePrimaryContent =Color(0xFFB3E5FC),
     interactiveSecondary = Color(0xFF2E7D32),

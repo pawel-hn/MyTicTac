@@ -2,6 +2,7 @@ package com.mytictac.tictacgame
 
 import androidx.lifecycle.ViewModel
 import com.mytictac.data.Player
+import com.mytictac.data.gameoptions.GameOptionsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,12 +12,13 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class TicTacViewModel @Inject constructor() : ViewModel() {
+class TicTacViewModel @Inject constructor(
+    gameOptionsService: GameOptionsService
+) : ViewModel() {
     private val tappedFields = mutableSetOf<Int>()
 
     private val _state = MutableStateFlow(startState)
     val state: StateFlow<GameState> = _state.asStateFlow()
-
 
     fun tapped(id: Int) {
         if (!tappedFields.contains(id)) {
@@ -25,19 +27,19 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
             _state.update { gameState ->
                 val tapsX = gameState.playerX.toMutableList()
                 val tapsO = gameState.playerO.toMutableList()
-                val field = Field.entries.first { it.id == id }
+                val field = Fields.entries.first { it.id == id }
                 val currentPLayer: Player
 
                 when (gameState.currentPLayer) {
                     Player.PlayerX -> {
                         tapsX.add(field)
-                        if (checkIfWin(tapsX)) {
-
+                        checkIfWin(tapsX)?.let {
                             return@update GameState(
                                 playerO = tapsO,
                                 playerX = tapsX,
                                 currentPLayer = Player.PlayerO,
                                 winner = Player.PlayerX,
+                                winningSet = it,
                                 shouldResetAnimations = false
                             )
                         }
@@ -46,15 +48,15 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
 
                     Player.PlayerO -> {
                         tapsO.add(field)
-                        if (checkIfWin(tapsO)) {
+                        checkIfWin(tapsO)?.let {
                             return@update GameState(
                                 playerO = tapsO,
                                 playerX = tapsX,
                                 currentPLayer = Player.PlayerX,
                                 winner = Player.PlayerO,
+                                winningSet = it,
                                 shouldResetAnimations = false
                             )
-
                         }
                         currentPLayer = Player.PlayerX
                     }
@@ -83,18 +85,19 @@ class TicTacViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun checkIfWin(fields: List<Field>): Boolean {
-        if (fields.size < 3) return false
+    private fun checkIfWin(fields: List<Fields>): List<Fields>? {
+        if (fields.size < 3) return null
 
-        return victories.any { fields.containsAll(it) }
+        return victories.find { fields.containsAll(it) }
     }
 }
 
 data class GameState(
     val currentPLayer: Player,
-    val playerX: List<Field>,
-    val playerO: List<Field>,
+    val playerX: List<Fields>,
+    val playerO: List<Fields>,
     val winner: Player?,
+    val winningSet: List<Fields>? = null,
     val shouldResetAnimations: Boolean
 )
 
@@ -106,7 +109,7 @@ val startState = GameState(
     shouldResetAnimations = false,
 )
 
-enum class Field(val id: Int) {
+enum class Fields(val id: Int) {
     One(11),
     Two(12),
     Three(13),
@@ -118,18 +121,15 @@ enum class Field(val id: Int) {
     Nine(33)
 }
 
-val victories = setOf(
-    // Wiersze
-    setOf(Field.One, Field.Two, Field.Three),
-    setOf(Field.Four, Field.Five, Field.Six),
-    setOf(Field.Seven, Field.Eight, Field.Nine),
+val victories = listOf(
+    listOf(Fields.One, Fields.Two, Fields.Three),
+    listOf(Fields.Four, Fields.Five, Fields.Six),
+    listOf(Fields.Seven, Fields.Eight, Fields.Nine),
 
-    // Kolumny
-    setOf(Field.One, Field.Four, Field.Seven),
-    setOf(Field.Two, Field.Five, Field.Eight),
-    setOf(Field.Three, Field.Six, Field.Nine),
+    listOf(Fields.One, Fields.Four, Fields.Seven),
+    listOf(Fields.Two, Fields.Five, Fields.Eight),
+    listOf(Fields.Three, Fields.Six, Fields.Nine),
 
-    // Przekątne
-    setOf(Field.One, Field.Five, Field.Nine),
-    setOf(Field.Three, Field.Five, Field.Seven)
+    listOf(Fields.One, Fields.Five, Fields.Nine),
+    listOf(Fields.Three, Fields.Five, Fields.Seven)
 )

@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,6 +41,8 @@ import com.mytictac.ui.theme.MyTicTacTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+const val LINE_ANIMATION_DURATION = 500
+
 @Composable
 fun TicTacScreen() {
     Column(
@@ -60,7 +61,6 @@ fun TicTacScreen() {
             color = MyTicTacTheme.colours.contentPrimary,
             textAlign = TextAlign.Center
         )
-
 
         BoxWithConstraints(
             modifier = Modifier.weight(1F)
@@ -87,7 +87,6 @@ fun TicTacScreen() {
             Text("Reset")
         }
     }
-
 }
 
 @Composable
@@ -99,15 +98,23 @@ fun TicTacToeField(
 ) {
     val scope = rememberCoroutineScope()
     var animations by remember { mutableStateOf(emptyAnimations()) }
+    var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
 
     LaunchedEffect(state.shouldResetAnimations) {
         if (state.shouldResetAnimations) {
             animations = emptyAnimations()
+            winningLineAnimation = Animatable(0F)
             setDefault()
         }
     }
+    LaunchedEffect(state.winningSet) {
+        if (state.winningSet != null) {
+           winningLineAnimation.animateTo(20F,
+               tween(LINE_ANIMATION_DURATION, LINE_ANIMATION_DURATION)
+           )
+        }
+    }
 
-    val lineColor = MyTicTacTheme.colours.contentPrimary
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -120,7 +127,7 @@ fun TicTacToeField(
                 }
             }
     ) {
-        drawTicTacToeField(lineColor = lineColor)
+        drawTicTacToeField(lineColor = Color.LightGray, field = fieldController.fieldPitch)
 
         state.playerX.forEach { field ->
             drawCross(
@@ -135,15 +142,31 @@ fun TicTacToeField(
                 animate = animations[getIndex(field.id)].value
             )
         }
+
+        state.winningSet?.let { fields ->
+            val winningLine = fieldController.getWinningLine(
+                start = fieldController.getFieldXYFromId(fields.first()),
+                end = fieldController.getFieldXYFromId(fields.last())
+            )
+
+            if (winningLineAnimation.value > 0F) {
+                drawLine(
+                    color = Color.Gray,
+                    start = winningLine.first,
+                    end = winningLine.second,
+                    strokeWidth = winningLineAnimation.value
+                )
+            }
+        }
     }
 }
 
 private fun CoroutineScope.animateFloatToOne(animatable: Animatable<Float, AnimationVector1D>) {
     launch {
         animatable.animateTo(
-            targetValue = 1f,
+            targetValue = 20f,
             animationSpec = tween(
-                durationMillis = 500
+                durationMillis = LINE_ANIMATION_DURATION
             )
         )
     }
@@ -166,7 +189,7 @@ fun DrawScope.drawCross(fieldXY: FieldXY, animate: Float) {
     }
     drawPath(
         path = path,
-        style = Stroke(width = 20F * animate, cap = StrokeCap.Round),
+        style = Stroke(width = animate, cap = StrokeCap.Round),
         color = Color.Blue,
     )
 }
@@ -183,68 +206,26 @@ fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
             width = fieldXY.bottomRight.x - fieldXY.topLeft.x - endOffset * 2,
             height = fieldXY.bottomRight.y - fieldXY.topLeft.y - endOffset * 2
         ),
-        style = Stroke(width = 20F * animate, cap = StrokeCap.Round),
+        style = Stroke(width = animate, cap = StrokeCap.Round),
         color = Color.Red,
     )
 }
 
 
 fun DrawScope.drawTicTacToeField(
+    field: List<Pair<Offset, Offset>>,
     lineColor: Color
 ) {
-    val lineLength = size.width * 0.7F
-    // first x line
-    drawLine(
-        color = lineColor,
-        start = Offset(
-            x = center.x - lineLength / 2,
-            y = center.y - lineLength / 6
-        ),
-        end = Offset(
-            x = center.x + lineLength / 2,
-            y = center.y - lineLength / 6
-        ),
-        strokeWidth = 5F
-    )
-    // second x
-    drawLine(
-        color = lineColor,
-        start = Offset(
-            x = center.x - lineLength / 2,
-            y = center.y + lineLength / 6
-        ),
-        end = Offset(
-            x = center.x + lineLength / 2,
-            y = center.y + lineLength / 6
-        ),
-        strokeWidth = 5F
-    )
-    // first y
-    drawLine(
-        color = lineColor,
-        start = Offset(
-            x = center.x - lineLength / 6,
-            y = center.y - lineLength / 2
-        ),
-        end = Offset(
-            x = center.x - lineLength / 6,
-            y = center.y + lineLength / 2
-        ),
-        strokeWidth = 5F
-    )
-    // second y
-    drawLine(
-        color = lineColor,
-        start = Offset(
-            x = center.x + lineLength / 6,
-            y = center.y - lineLength / 2
-        ),
-        end = Offset(
-            x = center.x + lineLength / 6,
-            y = center.y + lineLength / 2
-        ),
-        strokeWidth = 5F
-    )
+
+    field.forEach {
+        drawLine(
+            color = lineColor,
+            start = it.first,
+            end = it.second,
+            strokeWidth = 15F,
+            cap = StrokeCap.Round
+        )
+    }
 }
 
 fun getIndex(id: Int) =
@@ -260,3 +241,6 @@ fun getIndex(id: Int) =
         33 -> 8
         else -> -1
     }
+
+
+

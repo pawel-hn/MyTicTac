@@ -25,7 +25,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Field.One.id
+        id = Fields.One.id
     )
     private val fieldTwo = FieldXY(
         topLeft = Offset(
@@ -36,7 +36,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Field.Two.id
+        id = Fields.Two.id
     )
     private val fieldThree = FieldXY(
         topLeft = Offset(
@@ -48,7 +48,7 @@ class FieldController(
             x = thirdColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Field.Three.id
+        id = Fields.Three.id
     )
     private val fieldFour = FieldXY(
         topLeft = Offset(
@@ -59,7 +59,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Field.Four.id
+        id = Fields.Four.id
     )
     private val fieldFive = FieldXY(
         topLeft = Offset(
@@ -70,7 +70,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Field.Five.id
+        id = Fields.Five.id
     )
     private val fieldSix = FieldXY(
         topLeft = Offset(
@@ -81,7 +81,7 @@ class FieldController(
             x = thirdColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Field.Six.id
+        id = Fields.Six.id
     )
     private val fieldSeven = FieldXY(
         topLeft = Offset(
@@ -92,7 +92,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = thirdRowBottomY
         ),
-        id = Field.Seven.id
+        id = Fields.Seven.id
     )
     private val fieldEight = FieldXY(
         topLeft = Offset(
@@ -103,7 +103,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = thirdRowBottomY
         ),
-        id = Field.Eight.id
+        id = Fields.Eight.id
     )
     private val fieldNine = FieldXY(
         topLeft = Offset(
@@ -114,10 +114,10 @@ class FieldController(
             x = thirdColumnBottomX,
             y = thirdRowBottomY,
         ),
-        id = Field.Nine.id
+        id = Fields.Nine.id
     )
 
-    private val fields = listOf(
+    private val gameFields = listOf(
         fieldOne,
         fieldTwo,
         fieldThree,
@@ -129,7 +129,58 @@ class FieldController(
         fieldNine
     )
 
-    fun getFieldXYFromId(field: Field) = fields.first { it.id == field.id }
+    private val firstHorizontalLine = Pair(
+        Offset(
+            x = center.x - lineLength / 2,
+            y = center.y - lineLength / 6
+        ),
+        Offset(
+            x = center.x + lineLength / 2,
+            y = center.y - lineLength / 6
+        )
+    )
+
+    private val secondHorizontalLine = Pair(
+        Offset(
+            x = center.x - lineLength / 2,
+            y = center.y + lineLength / 6
+        ),
+        Offset(
+            x = center.x + lineLength / 2,
+            y = center.y + lineLength / 6
+        )
+    )
+
+    private val firstVerticalLine = Pair(
+        Offset(
+            x = center.x - lineLength / 6,
+            y = center.y - lineLength / 2
+        ),
+        Offset(
+            x = center.x - lineLength / 6,
+            y = center.y + lineLength / 2
+        )
+    )
+
+    private val secondVerticalLine = Pair(
+        Offset(
+            x = center.x + lineLength / 6,
+            y = center.y - lineLength / 2
+        ),
+        Offset(
+            x = center.x + lineLength / 6,
+            y = center.y + lineLength / 2
+        )
+    )
+
+    val fieldPitch = listOf(
+        firstHorizontalLine,
+        secondHorizontalLine,
+        firstVerticalLine,
+        secondVerticalLine
+    )
+
+    fun getFieldXYFromId(field: Fields) = gameFields.first { it.id == field.id }
 
     fun getFieldXYFromOffset(offset: Offset): FieldXY? {
         val column = when {
@@ -147,10 +198,67 @@ class FieldController(
 
         if (column > 0 && row > 0) {
             val id = "$row$column".toInt()
-            return fields.first { it.id == id }
+            return gameFields.first { it.id == id }
         }
 
         return null
+    }
+
+    fun getWinningLine(start: FieldXY, end: FieldXY): Pair<Offset, Offset> {
+        val type = when {
+            start.topLeft.y == end.topLeft.y -> WinningLine.HORIZONTAL
+            start.topLeft.x == end.topLeft.x -> WinningLine.VERTICAL
+            start.topLeft.x > end.topLeft.x -> WinningLine.DIAGONAL_ASCENDING
+            else -> WinningLine.DIAGONAL_DESCENDING
+        }
+
+        return when (type) {
+            WinningLine.VERTICAL -> {
+                val first = Offset(
+                    x = (start.topLeft.x + start.bottomRight.x) / 2,
+                    y = start.topLeft.y
+                )
+                val second = Offset(
+                    x = (start.topLeft.x + start.bottomRight.x) / 2,
+                    y = end.bottomRight.y
+                )
+                first to second
+            }
+
+            WinningLine.HORIZONTAL -> {
+                val first = Offset(
+                    x = start.topLeft.x,
+                    y = (start.topLeft.y + start.bottomRight.y) / 2
+                )
+                val second = Offset(
+                    x = end.bottomRight.x,
+                    y = (start.topLeft.y + start.bottomRight.y) / 2
+                )
+                first to second
+            }
+
+            WinningLine.DIAGONAL_DESCENDING -> {
+                val first = start.topLeft
+                val second = end.bottomRight
+                first to second
+            }
+
+            WinningLine.DIAGONAL_ASCENDING -> {
+                val first = Offset(
+                    x = start.bottomRight.x,
+                    y = start.topLeft.y
+                )
+                val second = Offset(
+                    x = end.topLeft.x,
+                    y = end.bottomRight.y
+                )
+                first to second
+            }
+        }
+    }
+
+    enum class WinningLine {
+        VERTICAL, HORIZONTAL, DIAGONAL_ASCENDING, DIAGONAL_DESCENDING
     }
 
 }
