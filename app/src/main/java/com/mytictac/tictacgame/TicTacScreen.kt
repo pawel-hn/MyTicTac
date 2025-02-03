@@ -67,7 +67,7 @@ fun TicTacScreen() {
             TicTacToeField(
                 state = state,
                 fieldController = fields,
-                onTap = viewModel::tapped,
+                onTap = viewModel::onFieldTapped,
                 setDefault = viewModel::setDefault
             )
         }
@@ -94,15 +94,15 @@ fun TicTacToeField(
     var animations by remember { mutableStateOf(emptyAnimations()) }
     var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
 
-    LaunchedEffect(state.shouldResetAnimations) {
-        if (state.shouldResetAnimations) {
+    LaunchedEffect(state.reset) {
+        if (state.reset) {
             animations = emptyAnimations()
             winningLineAnimation = Animatable(0F)
             setDefault()
         }
     }
     LaunchedEffect(state.winningSet) {
-        if (state.winningSet != null) {
+        if (state.winningSet.isNotEmpty()) {
             winningLineAnimation.animateTo(
                 20F,
                 tween(LINE_ANIMATION_DURATION, LINE_ANIMATION_DURATION)
@@ -139,10 +139,10 @@ fun TicTacToeField(
             )
         }
 
-        state.winningSet?.let { fields ->
+        if (state.winningSet.isNotEmpty()) {
             val winningLine = fieldController.getWinningLine(
-                start = fieldController.getFieldXYFromId(fields.first()),
-                end = fieldController.getFieldXYFromId(fields.last())
+                start = fieldController.getFieldXYFromId(state.winningSet.first()),
+                end = fieldController.getFieldXYFromId(state.winningSet.last())
             )
 
             if (winningLineAnimation.value > 0F) {

@@ -22,7 +22,7 @@ class TicTacViewModel @Inject constructor(
 
     private var gameRunning: Boolean = true
 
-    fun tapped(id: Int) {
+    fun onFieldTapped(id: Int) {
         if (!tappedFields.contains(id) && gameRunning) {
             tappedFields.add(id)
 
@@ -36,13 +36,10 @@ class TicTacViewModel @Inject constructor(
                     Player.PlayerX -> {
                         tapsX.add(field)
                         checkIfWin(tapsX)?.let {
-                            return@update GameState(
-                                playerO = tapsO,
+                            return@update gameState.copy(
                                 playerX = tapsX,
-                                currentPLayer = Player.PlayerO,
                                 winner = Player.PlayerX,
                                 winningSet = it,
-                                shouldResetAnimations = false
                             )
                         }
                         currentPLayer = Player.PlayerO
@@ -51,24 +48,19 @@ class TicTacViewModel @Inject constructor(
                     Player.PlayerO -> {
                         tapsO.add(field)
                         checkIfWin(tapsO)?.let {
-                            return@update GameState(
+                            return@update gameState.copy(
                                 playerO = tapsO,
-                                playerX = tapsX,
-                                currentPLayer = Player.PlayerX,
                                 winner = Player.PlayerO,
                                 winningSet = it,
-                                shouldResetAnimations = false
                             )
                         }
                         currentPLayer = Player.PlayerX
                     }
                 }
-                GameState(
-                    playerO = tapsO,
+                gameState.copy(
                     playerX = tapsX,
+                    playerO = tapsO,
                     currentPLayer = currentPLayer,
-                    winner = null,
-                    shouldResetAnimations = false
                 )
             }
         }
@@ -76,7 +68,7 @@ class TicTacViewModel @Inject constructor(
 
     fun reset() {
         _state.update {
-            it.copy(shouldResetAnimations = true)
+            it.copy(reset = true)
         }
     }
 
@@ -103,8 +95,8 @@ data class GameState(
     val playerX: List<Fields>,
     val playerO: List<Fields>,
     val winner: Player?,
-    val winningSet: List<Fields>? = null,
-    val shouldResetAnimations: Boolean,
+    val winningSet: List<Fields>,
+    val reset: Boolean,
 )
 
 val startState = GameState(
@@ -112,7 +104,8 @@ val startState = GameState(
     playerX = emptyList(),
     playerO = emptyList(),
     winner = null,
-    shouldResetAnimations = false,
+    reset = false,
+    winningSet = emptyList()
 )
 
 enum class Fields(val id: Int) {
