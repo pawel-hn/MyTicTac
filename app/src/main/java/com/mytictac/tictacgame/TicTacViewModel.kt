@@ -20,8 +20,10 @@ class TicTacViewModel @Inject constructor(
     private val _state = MutableStateFlow(startState)
     val state: StateFlow<GameState> = _state.asStateFlow()
 
+    private var gameRunning: Boolean = true
+
     fun tapped(id: Int) {
-        if (!tappedFields.contains(id)) {
+        if (!tappedFields.contains(id) && gameRunning) {
             tappedFields.add(id)
 
             _state.update { gameState ->
@@ -80,6 +82,7 @@ class TicTacViewModel @Inject constructor(
 
     fun setDefault() {
         _state.update {
+            gameRunning = true
             tappedFields.removeAll { true }
             startState
         }
@@ -88,7 +91,10 @@ class TicTacViewModel @Inject constructor(
     private fun checkIfWin(fields: List<Fields>): List<Fields>? {
         if (fields.size < 3) return null
 
-        return victories.find { fields.containsAll(it) }
+        val victory =  victories.find { fields.containsAll(it) }
+        gameRunning = victory == null
+
+        return victory
     }
 }
 
@@ -98,7 +104,7 @@ data class GameState(
     val playerO: List<Fields>,
     val winner: Player?,
     val winningSet: List<Fields>? = null,
-    val shouldResetAnimations: Boolean
+    val shouldResetAnimations: Boolean,
 )
 
 val startState = GameState(

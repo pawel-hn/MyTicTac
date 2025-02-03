@@ -7,17 +7,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.ui.debouncedFieldClick
 import com.mytictac.ui.theme.MyTicTacTheme
 import kotlinx.coroutines.CoroutineScope
@@ -45,14 +42,12 @@ const val LINE_ANIMATION_DURATION = 500
 @Composable
 fun TicTacScreen() {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(WindowInsets.systemBars.asPaddingValues()),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val viewModel: TicTacViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsState()
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
         Text(
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
@@ -174,7 +169,7 @@ private fun CoroutineScope.animateFloatToOne(animatable: Animatable<Float, Anima
 }
 
 fun emptyAnimations(): List<Animatable<Float, AnimationVector1D>> {
-    return List(9) { Animatable(0f) }
+    return List(9) { Animatable(1f) }
 }
 
 
