@@ -1,9 +1,9 @@
 package com.mytictac.data.gameoptions
 
 import com.mytictac.data.DifficultyLevel
+import com.mytictac.data.FirstPLayer
 import com.mytictac.data.Participant
 import com.mytictac.data.Player
-import com.mytictac.start.FirstPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ interface GameOptionsService {
 
     fun onPlayerCountChanged(singlePlayer: Boolean)
     fun onDifficultyChanged(difficultyLevel: DifficultyLevel)
-    fun onFirstPlayerChanged(firstPlayer: FirstPlayer)
+    fun onFirstPlayerChanged(firstPlayer: FirstPLayer)
 }
 
 const val PLAYER_CROSS = "cross"
@@ -28,8 +28,9 @@ class AndroidGameOptionsService : GameOptionsService {
 
     override fun onPlayerCountChanged(singlePlayer: Boolean) {
         _gameOptions.update { options ->
-            val players = getPlayers(options.firstPlayer, singlePlayer)
+            val players = getPlayers(singlePlayer)
             options.copy(
+                firstPlayer = FirstPLayer.Circle,
                 singlePlayer = singlePlayer,
                 cross = players[PLAYER_CROSS] as Player.Cross,
                 circle = players[PLAYER_CIRCLE] as Player.Circle
@@ -41,9 +42,9 @@ class AndroidGameOptionsService : GameOptionsService {
         _gameOptions.update { it.copy(difficultyLevel = difficultyLevel) }
     }
 
-    override fun onFirstPlayerChanged(firstPlayer: FirstPlayer) {
+    override fun onFirstPlayerChanged(firstPlayer: FirstPLayer) {
         _gameOptions.update { options ->
-            val players = getPlayers(firstPlayer, options.singlePlayer)
+            val players = getPlayers(options.singlePlayer)
             options.copy(
                 firstPlayer = firstPlayer,
                 cross = players[PLAYER_CROSS] as Player.Cross,
@@ -52,29 +53,25 @@ class AndroidGameOptionsService : GameOptionsService {
         }
     }
 
-    private fun getPlayers(first: FirstPlayer, singlePlayer: Boolean): Map<String, Player> {
-        return when (first) {
-            FirstPlayer.Cross -> {
-                val cross = Player.Cross(Participant.Human)
-                val circle =
-                    Player.Circle(if (singlePlayer) Participant.Computer else Participant.Human)
-                mapOf(PLAYER_CROSS to cross, PLAYER_CIRCLE to circle)
-            }
-
-            FirstPlayer.Circle -> {
-                val circle = Player.Circle(Participant.Human)
-                val cross =
-                    Player.Cross(if (singlePlayer) Participant.Computer else Participant.Human)
-                mapOf(PLAYER_CROSS to cross, PLAYER_CIRCLE to circle)
-            }
+    private fun getPlayers(singlePlayer: Boolean): Map<String, Player> {
+        return if (singlePlayer) {
+            mapOf(
+                PLAYER_CROSS to Player.Cross(Participant.Computer),
+                PLAYER_CIRCLE to Player.Circle(Participant.Human)
+            )
+        } else {
+            mapOf(
+                PLAYER_CROSS to Player.Cross(Participant.Human),
+                PLAYER_CIRCLE to Player.Circle(Participant.Human)
+            )
         }
     }
 }
 
 val defaultGameOptions = GameOptions(
-    singlePlayer = false,
-    firstPlayer = FirstPlayer.Circle,
+    singlePlayer = true,
+    firstPlayer = FirstPLayer.Circle,
     difficultyLevel = DifficultyLevel.EASY,
-    cross = Player.Cross(Participant.Human),
-    circle = Player.Circle(Participant.Computer),
+    cross = Player.Cross(Participant.Computer),
+    circle = Player.Circle(Participant.Human),
 )

@@ -9,18 +9,23 @@ enum class Field(val id: Int) {
     Six(23),
     Seven(31),
     Eight(32),
-    Nine(33)
+    Nine(33);
+
 }
 
-val victories = listOf(
-    listOf(Field.One, Field.Two, Field.Three),
-    listOf(Field.Four, Field.Five, Field.Six),
-    listOf(Field.Seven, Field.Eight, Field.Nine),
+val corners = setOf(Field.One, Field.Three, Field.Seven, Field.Nine)
 
-    listOf(Field.One, Field.Four, Field.Seven),
-    listOf(Field.Two, Field.Five, Field.Eight),
-    listOf(Field.Three, Field.Six, Field.Nine),
+val center = Field.Five
 
-    listOf(Field.One, Field.Five, Field.Nine),
-    listOf(Field.Three, Field.Five, Field.Seven)
+val victories = setOf(
+    setOf(Field.One, Field.Two, Field.Three),
+    setOf(Field.Four, Field.Five, Field.Six),
+    setOf(Field.Seven, Field.Eight, Field.Nine),
+
+    setOf(Field.One, Field.Four, Field.Seven),
+    setOf(Field.Two, Field.Five, Field.Eight),
+    setOf(Field.Three, Field.Six, Field.Nine),
+
+    setOf(Field.One, Field.Five, Field.Nine),
+    setOf(Field.Three, Field.Five, Field.Seven)
 )

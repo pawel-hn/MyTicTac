@@ -1,15 +1,18 @@
 package com.mytictac.tictacgame
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,45 +49,58 @@ fun TicTacScreen() {
     ) {
         val viewModel: TicTacViewModel = hiltViewModel()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val computerMove by viewModel.animateMove.collectAsStateWithLifecycle(-1)
 
-        Text(
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-            text = "Current player: ${state.currentPLayer} Winner: ${state.winner}",
-            color = MyTicTacTheme.colours.contentPrimary,
-            textAlign = TextAlign.Center
-        )
+        when (val result = state) {
+            GameState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            is GameState.CurrentGame -> {
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    text = "Current player: ${result.currentPLayer::class.java.simpleName} Who won: ${result.winner}",
+                    color = MyTicTacTheme.colours.contentPrimary,
+                    textAlign = TextAlign.Center
+                )
 
-        BoxWithConstraints(
-            modifier = Modifier.weight(1F)
-        ) {
-            val centerOffset = Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
-            val lineLength = constraints.maxWidth * 0.7F
+                BoxWithConstraints(
+                    modifier = Modifier.weight(1F)
+                ) {
+                    val centerOffset =
+                        Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
+                    val lineLength = constraints.maxWidth * 0.7F
 
-            val fields = FieldController(centerOffset, lineLength)
+                    val fields = FieldController(centerOffset, lineLength)
 
-            TicTacToeField(
-                state = state,
-                fieldController = fields,
-                onTap = {id -> viewModel.makeMove(id,false) },
-                setDefault = viewModel::setDefault
-            )
-        }
+                    TicTacToeField(
+                        state = result,
+                        fieldController = fields,
+                        onTap = { id -> viewModel.fieldTapped(id, false) },
+                        animateComputerMove = computerMove,
+                        setDefault = viewModel::setDefault
+                    )
+                }
 
-        Button(
-            modifier = Modifier.padding(bottom = 24.dp),
-            onClick = {
-                viewModel.reset()
-            },
-        ) {
-            Text("Reset")
+                Button(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    onClick = {
+                        viewModel.reset()
+                    },
+                ) {
+                    Text("Reset")
+                }
+            }
         }
     }
 }
 
 @Composable
 fun TicTacToeField(
-    state: GameState,
+    state: GameState.CurrentGame,
     fieldController: FieldController,
+    animateComputerMove: Int,
     onTap: (Int) -> Unit,
     setDefault: () -> Unit
 ) {
@@ -107,6 +123,12 @@ fun TicTacToeField(
             )
         }
     }
+    LaunchedEffect(animateComputerMove) {
+        if (animateComputerMove > 0) {
+            Log.d("PHN", "animateComputerMove: $animateComputerMove")
+            scope.animateFloatToOne(animations[getAnimationIndex(animateComputerMove)])
+        }
+    }
 
     Canvas(
         modifier = Modifier
@@ -116,7 +138,7 @@ fun TicTacToeField(
                 onClick = { position ->
                     fieldController.getFieldXYFromOffset(position)?.let {
                         onTap(it.id)
-                        scope.animateFloatToOne(animations[getIndex(it.id)])
+                        scope.animateFloatToOne(animations[getAnimationIndex(it.id)])
                     }
                 }
             )
@@ -126,14 +148,14 @@ fun TicTacToeField(
         state.cross.moves.forEach { field ->
             drawCross(
                 fieldXY = fieldController.getFieldXYFromId(field),
-                animate = animations[getIndex(field.id)].value
+                animate = animations[getAnimationIndex(field.id)].value
             )
         }
 
         state.circle.moves.forEach { field ->
             drawTicCircle(
                 fieldXY = fieldController.getFieldXYFromId(field),
-                animate = animations[getIndex(field.id)].value
+                animate = animations[getAnimationIndex(field.id)].value
             )
         }
 
@@ -220,7 +242,7 @@ fun DrawScope.drawTicTacToeField(
     }
 }
 
-fun getIndex(id: Int) =
+fun getAnimationIndex(id: Int) =
     when (id) {
         11 -> 0
         12 -> 1

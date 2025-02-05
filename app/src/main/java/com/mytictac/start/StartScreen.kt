@@ -90,7 +90,7 @@ fun StartScreen(
                 maxWidth = width,
                 difficultyLevel = state.difficultyLevel,
                 singlePlayer = state.singlePLayer,
-                firstPlayer = state.firstPlayer,
+                startScreenFirstPlayerUI = state.startScreenFirstPlayerUI,
                 onDifficultyChanged = viewModel::onDifficultyChanged,
                 onPlayerChanged = viewModel::onFirstPlayerChanged
             )
@@ -115,15 +115,15 @@ fun StartOptions(
     maxWidth: Dp,
     difficultyLevel: DifficultyLevel,
     singlePlayer: Boolean,
-    firstPlayer: FirstPlayer,
+    startScreenFirstPlayerUI: StartScreenFirstPlayerUI,
     onDifficultyChanged: (DifficultyLevel) -> Unit,
-    onPlayerChanged: (FirstPlayer) -> Unit,
+    onPlayerChanged: (StartScreenFirstPlayerUI) -> Unit,
 ) {
     AnimatedContent(
         modifier = modifier,
         targetState = singlePlayer,
         transitionSpec = {
-            if (targetState < initialState) {
+            if (targetState > initialState) {
                 slideInHorizontally { width -> width } togetherWith
                         slideOutHorizontally { width -> -width }
             } else {
@@ -163,13 +163,13 @@ fun StartOptions(
             ) {
                 Text(text = "Kto zaczyna:")
 
-                FirstPlayer.entries.forEach { player ->
+                StartScreenFirstPlayerUI.entries.forEach { player ->
                     OptionButton(
                         text = stringResource(player.label),
                         width = maxWidth / 3F,
                         textSize = 12.sp,
                         height = 40.dp,
-                        isSelected = player == firstPlayer,
+                        isSelected = player == startScreenFirstPlayerUI,
                         onClick = { onPlayerChanged(player) },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
                         enabledSecondaryColor =

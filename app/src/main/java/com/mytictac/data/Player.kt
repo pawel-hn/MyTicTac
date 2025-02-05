@@ -10,3 +10,7 @@ sealed interface Player {
 enum class Participant {
     Human,Computer
 }
+
+enum class FirstPLayer {
+    Cross,Circle
+}

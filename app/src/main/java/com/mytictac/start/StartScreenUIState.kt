@@ -6,17 +6,17 @@ import com.mytictac.data.DifficultyLevel
 
 data class StartScreenUIState(
     val singlePLayer: Boolean,
-    val firstPlayer: FirstPlayer,
+    val startScreenFirstPlayerUI: StartScreenFirstPlayerUI,
     val difficultyLevel: DifficultyLevel
 )
 
 val defaultStartScreenUIState = StartScreenUIState(
     singlePLayer = true,
-    firstPlayer = FirstPlayer.Circle,
-    difficultyLevel = DifficultyLevel.IMPOSSIBLE
+    startScreenFirstPlayerUI = StartScreenFirstPlayerUI.Circle,
+    difficultyLevel = DifficultyLevel.EASY
 )
 
-enum class FirstPlayer(val label: Int, short: Char) {
+enum class StartScreenFirstPlayerUI(val label: Int, short: Char) {
     Cross(R.string.first_player_x, 'X'),
     Circle(R.string.first_player_o, 'O')
 }
