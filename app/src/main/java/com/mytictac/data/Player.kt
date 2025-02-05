@@ -1,8 +1,12 @@
 package com.mytictac.data
 
-import com.mytictac.R
+sealed interface Player {
+    val participant: Participant
 
-enum class Player(val label: Int, short: Char) {
-    PlayerX(R.string.first_player_x, 'X'),
-    PlayerO(R.string.first_player_o, 'O')
+    data class Cross(override val participant: Participant) : Player
+    data class Circle(override val participant: Participant) : Player
+}
+
+enum class Participant {
+    Human,Computer
 }

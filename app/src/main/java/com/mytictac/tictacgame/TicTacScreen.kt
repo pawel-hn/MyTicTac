@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,7 +42,6 @@ const val LINE_ANIMATION_DURATION = 500
 fun TicTacScreen() {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val viewModel: TicTacViewModel = hiltViewModel()
@@ -67,13 +65,13 @@ fun TicTacScreen() {
             TicTacToeField(
                 state = state,
                 fieldController = fields,
-                onTap = viewModel::onFieldTapped,
+                onTap = {id -> viewModel.makeMove(id,false) },
                 setDefault = viewModel::setDefault
             )
         }
 
         Button(
-            modifier = Modifier.padding(bottom = 10.dp),
+            modifier = Modifier.padding(bottom = 24.dp),
             onClick = {
                 viewModel.reset()
             },
@@ -125,14 +123,14 @@ fun TicTacToeField(
     ) {
         drawTicTacToeField(lineColor = Color.LightGray, field = fieldController.fieldPitch)
 
-        state.playerX.forEach { field ->
+        state.cross.moves.forEach { field ->
             drawCross(
                 fieldXY = fieldController.getFieldXYFromId(field),
                 animate = animations[getIndex(field.id)].value
             )
         }
 
-        state.playerO.forEach { field ->
+        state.circle.moves.forEach { field ->
             drawTicCircle(
                 fieldXY = fieldController.getFieldXYFromId(field),
                 animate = animations[getIndex(field.id)].value

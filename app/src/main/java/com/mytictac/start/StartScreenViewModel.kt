@@ -3,8 +3,6 @@ package com.mytictac.start
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytictac.data.DifficultyLevel
-import com.mytictac.data.Player
-import com.mytictac.data.PlayerCount
 import com.mytictac.data.gameoptions.GameOptionsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -28,7 +26,7 @@ class StartScreenViewModel @Inject constructor(
 
     val state: StateFlow<StartScreenUIState> = gameOptionsService.gameOptions.map {
         StartScreenUIState(
-            playerCount = it.playerCount,
+            singlePLayer = it.singlePlayer,
             firstPlayer = it.firstPlayer,
             difficultyLevel = it.difficultyLevel
         )
@@ -38,18 +36,18 @@ class StartScreenViewModel @Inject constructor(
         defaultStartScreenUIState
     )
 
-    fun onPlayerCountChanged(playerCount: PlayerCount) =
-        gameOptionsService.onPlayerCountChanged(playerCount)
+    fun onPlayerCountChanged(isSinglePlayer: Boolean) =
+        gameOptionsService.onPlayerCountChanged(isSinglePlayer)
 
     fun onDifficultyChanged(difficultyLevel: DifficultyLevel) =
         gameOptionsService.onDifficultyChanged(difficultyLevel)
 
-    fun onFirstPlayerChanged(player: Player) =
+    fun onFirstPlayerChanged(player: FirstPlayer) =
         gameOptionsService.onFirstPlayerChanged(player)
 
     fun onStartGame() {
         viewModelScope.launch {
-            _startScreenEvent.trySend(StartScreenUIEvent.StartGame)
+            _startScreenEvent.send(StartScreenUIEvent.StartGame)
         }
     }
 }

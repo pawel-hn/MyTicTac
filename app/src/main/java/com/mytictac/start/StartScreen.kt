@@ -26,19 +26,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.data.DifficultyLevel
-import com.mytictac.data.Player
-import com.mytictac.data.PlayerCount
 import com.mytictac.ui.components.OptionButton
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
-
 
 @Composable
 fun StartScreen(
     viewModel: StartScreenViewModel,
     router: StartRouter
 ) {
-
     LaunchedEffect(Unit) {
         viewModel.startScreenEvent.collect {
             when (it) {
@@ -46,7 +42,6 @@ fun StartScreen(
             }
         }
     }
-
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -68,7 +63,7 @@ fun StartScreen(
             modifier = Modifier.offset { IntOffset(x = 0, y = (height.toPx() / 4).toInt()) },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Liczba graczy:",color = MyTicTacTheme.colours.contentPrimary,)
+            Text(text = "Liczba graczy:", color = MyTicTacTheme.colours.contentPrimary)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,9 +75,9 @@ fun StartScreen(
                         modifier = Modifier.weight(0.5F),
                         text = if (it == 0) "1 gracz" else "2 graczy",
                         width = width * 0.4F,
-                        isSelected = state.playerCount == PlayerCount.fromInt(it + 1),
+                        isSelected = state.singlePLayer == (it == 0),
                         onClick = {
-                            viewModel.onPlayerCountChanged(PlayerCount.fromInt(it + 1))
+                            viewModel.onPlayerCountChanged(it == 0)
                         },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveSecondary,
                         enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
@@ -94,7 +89,7 @@ fun StartScreen(
                 modifier = Modifier.fillMaxWidth(),
                 maxWidth = width,
                 difficultyLevel = state.difficultyLevel,
-                playerCount = state.playerCount,
+                singlePlayer = state.singlePLayer,
                 firstPlayer = state.firstPlayer,
                 onDifficultyChanged = viewModel::onDifficultyChanged,
                 onPlayerChanged = viewModel::onFirstPlayerChanged
@@ -119,14 +114,14 @@ fun StartOptions(
     modifier: Modifier = Modifier,
     maxWidth: Dp,
     difficultyLevel: DifficultyLevel,
-    playerCount: PlayerCount,
-    firstPlayer: Player,
+    singlePlayer: Boolean,
+    firstPlayer: FirstPlayer,
     onDifficultyChanged: (DifficultyLevel) -> Unit,
-    onPlayerChanged: (Player) -> Unit,
+    onPlayerChanged: (FirstPlayer) -> Unit,
 ) {
     AnimatedContent(
         modifier = modifier,
-        targetState = playerCount,
+        targetState = singlePlayer,
         transitionSpec = {
             if (targetState < initialState) {
                 slideInHorizontally { width -> width } togetherWith
@@ -139,55 +134,53 @@ fun StartOptions(
             )
         },
         label = ""
-    ) { players ->
-        when (players) {
-            PlayerCount.ONE -> {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(Padding.small)
-                ) {
-                    Text(text = "Poziom trudności:")
-                    DifficultyLevel.entries.forEach { level ->
-                        OptionButton(
-                            text = stringResource(level.value),
-                            width = maxWidth / 3F,
-                            textSize = 12.sp,
-                            height = 40.dp,
-                            isSelected = difficultyLevel == level,
-                            onClick = { onDifficultyChanged(level) },
-                            enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                            enabledSecondaryColor =
-                            MyTicTacTheme.colours.interactiveTertiaryContent,
-                        )
-                    }
+    ) { isSingle ->
+        if (isSingle) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Padding.small)
+            ) {
+                Text(text = "Poziom trudności:")
+                DifficultyLevel.entries.forEach { level ->
+                    OptionButton(
+                        text = stringResource(level.value),
+                        width = maxWidth / 3F,
+                        textSize = 12.sp,
+                        height = 40.dp,
+                        isSelected = difficultyLevel == level,
+                        onClick = { onDifficultyChanged(level) },
+                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                        enabledSecondaryColor =
+                        MyTicTacTheme.colours.interactiveTertiaryContent,
+                    )
                 }
             }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Padding.small)
+            ) {
+                Text(text = "Kto zaczyna:")
 
-            PlayerCount.TWO -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(Padding.small)
-                ) {
-                    Text(text = "Kto zaczyna:")
-                    Player.entries.forEach { player ->
-                        OptionButton(
-                            text = stringResource(player.label),
-                            width = maxWidth / 3F,
-                            textSize = 12.sp,
-                            height = 40.dp,
-                            isSelected = player == firstPlayer,
-                            onClick = { onPlayerChanged(player) },
-                            enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                            enabledSecondaryColor =
-                            MyTicTacTheme.colours.interactiveTertiaryContent,
-                        )
-                    }
+                FirstPlayer.entries.forEach { player ->
+                    OptionButton(
+                        text = stringResource(player.label),
+                        width = maxWidth / 3F,
+                        textSize = 12.sp,
+                        height = 40.dp,
+                        isSelected = player == firstPlayer,
+                        onClick = { onPlayerChanged(player) },
+                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                        enabledSecondaryColor =
+                        MyTicTacTheme.colours.interactiveTertiaryContent,
+                    )
                 }
             }
         }
     }
 }
+
 
 
 

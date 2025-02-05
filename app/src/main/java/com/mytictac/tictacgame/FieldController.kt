@@ -1,6 +1,7 @@
 package com.mytictac.tictacgame
 
 import androidx.compose.ui.geometry.Offset
+import com.mytictac.data.Field
 
 class FieldController(
     center: Offset,
@@ -25,7 +26,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Fields.One.id
+        id = Field.One.id
     )
     private val fieldTwo = FieldXY(
         topLeft = Offset(
@@ -36,7 +37,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Fields.Two.id
+        id = Field.Two.id
     )
     private val fieldThree = FieldXY(
         topLeft = Offset(
@@ -48,7 +49,7 @@ class FieldController(
             x = thirdColumnBottomX,
             y = firstRowBottomY
         ),
-        id = Fields.Three.id
+        id = Field.Three.id
     )
     private val fieldFour = FieldXY(
         topLeft = Offset(
@@ -59,7 +60,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Fields.Four.id
+        id = Field.Four.id
     )
     private val fieldFive = FieldXY(
         topLeft = Offset(
@@ -70,7 +71,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Fields.Five.id
+        id = Field.Five.id
     )
     private val fieldSix = FieldXY(
         topLeft = Offset(
@@ -81,7 +82,7 @@ class FieldController(
             x = thirdColumnBottomX,
             y = secondRowBottomY
         ),
-        id = Fields.Six.id
+        id = Field.Six.id
     )
     private val fieldSeven = FieldXY(
         topLeft = Offset(
@@ -92,7 +93,7 @@ class FieldController(
             x = firstColumnBottomX,
             y = thirdRowBottomY
         ),
-        id = Fields.Seven.id
+        id = Field.Seven.id
     )
     private val fieldEight = FieldXY(
         topLeft = Offset(
@@ -103,7 +104,7 @@ class FieldController(
             x = secondColumnBottomX,
             y = thirdRowBottomY
         ),
-        id = Fields.Eight.id
+        id = Field.Eight.id
     )
     private val fieldNine = FieldXY(
         topLeft = Offset(
@@ -114,7 +115,7 @@ class FieldController(
             x = thirdColumnBottomX,
             y = thirdRowBottomY,
         ),
-        id = Fields.Nine.id
+        id = Field.Nine.id
     )
 
     private val gameFields = listOf(
@@ -180,7 +181,7 @@ class FieldController(
         secondVerticalLine
     )
 
-    fun getFieldXYFromId(field: Fields) = gameFields.first { it.id == field.id }
+    fun getFieldXYFromId(field: Field) = gameFields.first { it.id == field.id }
 
     fun getFieldXYFromOffset(offset: Offset): FieldXY? {
         val column = when {

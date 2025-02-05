@@ -2,11 +2,12 @@ package com.mytictac.data.gameoptions
 
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Player
-import com.mytictac.data.PlayerCount
+import com.mytictac.start.FirstPlayer
 
 data class GameOptions(
-    val playerCount: PlayerCount,
-    val firstPlayer: Player,
-    val difficultyLevel: DifficultyLevel
+    val singlePlayer: Boolean,
+    val firstPlayer: FirstPlayer,
+    val difficultyLevel: DifficultyLevel,
+    val cross: Player.Cross,
+    val circle: Player.Circle,
 )
-
