@@ -1,16 +1,25 @@
 package com.mytictac.tictacgame
 
-import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -23,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -30,21 +40,33 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mytictac.data.Player
 import com.mytictac.ui.debouncedFieldClick
 import com.mytictac.ui.theme.MyTicTacTheme
+import com.mytictac.ui.theme.Padding
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val LINE_ANIMATION_DURATION = 500
 
 @Composable
 fun TicTacScreen() {
+    var color by remember { mutableStateOf(Color.White) }
+    val animatedColor by animateColorAsState(
+        targetValue = color,
+        animationSpec = tween(durationMillis = 500),
+        label = "ColorAnimation"
+    )
+
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.background(animatedColor).fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val viewModel: TicTacViewModel = hiltViewModel()
@@ -57,13 +79,90 @@ fun TicTacScreen() {
                     CircularProgressIndicator()
                 }
             }
+
             is GameState.CurrentGame -> {
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                    text = "Current player: ${result.currentPLayer::class.java.simpleName} Who won: ${result.winner}",
-                    color = MyTicTacTheme.colours.contentPrimary,
-                    textAlign = TextAlign.Center
-                )
+                LaunchedEffect(result.winner) {
+                    if (result.winner == Winner.Circle || result.winner == Winner.Cross) {
+                        repeat(6) {
+                            color =
+                                if (color == Color.White) Color(0xFFf5ebc4) else Color.White
+                            delay(500)
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = Padding.medium),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(10.dp),
+                            text = "Current player:",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MyTicTacTheme.colours.contentPrimary,
+                            textAlign = TextAlign.Center
+                        )
+                        AnimatedContent(
+                            targetState = result.currentPLayer,
+                            label = "current player",
+                            transitionSpec = {
+                                (slideInVertically(tween(200)) { height ->
+                                    height
+                                } togetherWith
+                                        slideOutVertically(tween(200)) { height ->
+                                            -height
+                                        }).using(
+                                    SizeTransform(true)
+                                )
+                            }
+                        ) { player ->
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .drawBehind {
+                                        when (player) {
+                                            is Player.Cross -> {
+                                                drawCross(
+                                                    fieldXY = FieldXY(
+                                                        topLeft = Offset.Zero,
+                                                        bottomRight = Offset(
+                                                            40.dp.toPx(),
+                                                            40.dp.toPx()
+                                                        ),
+                                                        id = 0
+                                                    ),
+                                                    width = 15F,
+                                                    endOffset = 10F
+                                                )
+                                            }
+
+                                            is Player.Circle -> {
+                                                drawTicCircle(
+                                                    fieldXY = FieldXY(
+                                                        topLeft = Offset.Zero,
+                                                        bottomRight = Offset(
+                                                            40.dp.toPx(),
+                                                            40.dp.toPx()
+                                                        ),
+                                                        id = 0
+                                                    ),
+                                                    width = 15F,
+                                                    endOffset = 10F
+                                                )
+                                            }
+                                        }
+                                    }
+                            )
+                        }
+                    }
+                }
+
 
                 BoxWithConstraints(
                     modifier = Modifier.weight(1F)
@@ -148,14 +247,14 @@ fun TicTacToeField(
         state.cross.moves.forEach { field ->
             drawCross(
                 fieldXY = fieldController.getFieldXYFromId(field),
-                animate = animations[getAnimationIndex(field.id)].value
+                width = animations[getAnimationIndex(field.id)].value
             )
         }
 
         state.circle.moves.forEach { field ->
             drawTicCircle(
                 fieldXY = fieldController.getFieldXYFromId(field),
-                animate = animations[getAnimationIndex(field.id)].value
+                width = animations[getAnimationIndex(field.id)].value
             )
         }
 
@@ -193,9 +292,8 @@ fun emptyAnimations(): List<Animatable<Float, AnimationVector1D>> {
 }
 
 
-fun DrawScope.drawCross(fieldXY: FieldXY, animate: Float) {
+fun DrawScope.drawCross(fieldXY: FieldXY, width: Float, endOffset: Float = 60F) {
     val path = Path().apply {
-        val endOffset = 60F
         with(fieldXY) {
             moveTo(x = topLeft.x + endOffset, y = topLeft.y + endOffset)
             lineTo(x = bottomRight.x - endOffset, y = bottomRight.y - endOffset)
@@ -205,13 +303,12 @@ fun DrawScope.drawCross(fieldXY: FieldXY, animate: Float) {
     }
     drawPath(
         path = path,
-        style = Stroke(width = animate, cap = StrokeCap.Round),
-        color = Color.Blue,
+        style = Stroke(width = width, cap = StrokeCap.Round),
+        color = Color.Red,
     )
 }
 
-fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
-    val endOffset = 60F
+fun DrawScope.drawTicCircle(fieldXY: FieldXY, width: Float, endOffset: Float = 60F) {
     drawArc(
         useCenter = false,
         topLeft = Offset(fieldXY.topLeft.x + endOffset, fieldXY.topLeft.y + endOffset),
@@ -221,8 +318,8 @@ fun DrawScope.drawTicCircle(fieldXY: FieldXY, animate: Float) {
             width = fieldXY.bottomRight.x - fieldXY.topLeft.x - endOffset * 2,
             height = fieldXY.bottomRight.y - fieldXY.topLeft.y - endOffset * 2
         ),
-        style = Stroke(width = animate, cap = StrokeCap.Round),
-        color = Color.Red,
+        style = Stroke(width = width, cap = StrokeCap.Round),
+        color = Color.Blue,
     )
 }
 
