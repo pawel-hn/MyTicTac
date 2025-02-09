@@ -74,6 +74,8 @@ fun TicTacScreen() {
                             delay(STANDARD_ANIMATION_DURATION.toLong())
                         }
                     }
+                }
+                LaunchedEffect(result.reset){
                     if (result.reset) {
                         color = Color.White
                     }
@@ -87,11 +89,11 @@ fun TicTacScreen() {
                 BoxWithConstraints(
                     modifier = Modifier.weight(1F)
                 ) {
-                    val centerOffset =
+                    val centerOffset = remember {
                         Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
-                    val lineLength = constraints.maxWidth * 0.7F
-
-                    val fields = FieldController(centerOffset, lineLength)
+                    }
+                    val lineLength = remember { constraints.maxWidth * 0.7F }
+                    val fields = remember { FieldController(centerOffset, lineLength) }
 
                     TicTacToeField(
                         state = result,
@@ -108,8 +110,7 @@ fun TicTacScreen() {
                     height = 40.dp,
                     textSize = 12.sp,
                     enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                    enabledSecondaryColor =
-                    MyTicTacTheme.colours.interactiveTertiaryContent,
+                    enabledSecondaryColor = MyTicTacTheme.colours.interactiveTertiaryContent,
                     text = "Reset",
                     isSelected = true,
                     onClick = viewModel::reset
@@ -129,7 +130,7 @@ fun TicTacToeField(
 ) {
     val scope = rememberCoroutineScope()
     var animations by remember { mutableStateOf(emptyAnimations()) }
-    var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
+    var winningLineAnimation = remember { Animatable(0F) }
 
     LaunchedEffect(state.reset) {
         if (state.reset) {

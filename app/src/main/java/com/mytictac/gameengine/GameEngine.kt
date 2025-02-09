@@ -37,7 +37,7 @@ class AndroidGameEngine(
 
     private val options = gameOptionsService.gameOptions.value
 
-    private val _state = MutableStateFlow(setStartGame())
+    private val _state = MutableStateFlow(lazy { setStartGame() }.value)
     override val state: StateFlow<CurrentGame> = _state.asStateFlow()
 
     private val _computerMove = Channel<Int>()
@@ -46,7 +46,7 @@ class AndroidGameEngine(
     private val initiateComputerMove = Channel<Unit>()
 
     private val tappedIds = mutableSetOf<Int>()
-    private var gameRunning: Boolean = true
+
 
     private var isComputingMove = false
 
@@ -67,7 +67,9 @@ class AndroidGameEngine(
     }
 
     override fun selectedField(id: Int, computerMove: Boolean) {
-        if (!tappedIds.contains(id) && gameRunning && (!isComputingMove || computerMove)) {
+        if (!tappedIds.contains(id) &&
+            _state.value.winner == null &&
+            (!isComputingMove || computerMove)) {
             tappedIds.add(id)
             _state.update { gameState ->
                 makeMove(gameState, id)
@@ -84,7 +86,7 @@ class AndroidGameEngine(
 
     override fun setDefault() {
         if (!isComputingMove) {
-            gameRunning = true
+
             tappedIds.removeAll { true }
             _state.value = setStartGame()
             coroutineScope.launch {
@@ -225,7 +227,6 @@ class AndroidGameEngine(
         } else {
             checkIfDraw()
         }
-        gameRunning = result == null
         return result
     }
 
