@@ -1,8 +1,6 @@
 package com.mytictac
 
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,13 +8,12 @@ import androidx.navigation.compose.rememberNavController
 import com.mytictac.start.StartRouter
 import com.mytictac.start.StartScreen
 import com.mytictac.start.StartScreenViewModel
-import com.mytictac.tictacgame.TicTacScreen
+import com.mytictac.tictacgame.compose.TicTacScreen
 
 
 enum class Screen {
     START, GAME
 }
-
 
 @Composable
 fun AppNavGraph() {

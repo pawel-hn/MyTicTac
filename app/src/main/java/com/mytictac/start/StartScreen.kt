@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.data.DifficultyLevel
-import com.mytictac.ui.components.OptionButton
+import com.mytictac.ui.components.TicTacButton
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
 
@@ -71,7 +71,7 @@ fun StartScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 repeat(2) {
-                    OptionButton(
+                    TicTacButton(
                         modifier = Modifier.weight(0.5F),
                         text = if (it == 0) "1 gracz" else "2 graczy",
                         width = width * 0.4F,
@@ -96,7 +96,7 @@ fun StartScreen(
             )
         }
 
-        OptionButton(
+        TicTacButton(
             modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = Padding.extraExtraLarge),
             width = width / 2F,
@@ -143,7 +143,7 @@ fun StartOptions(
             ) {
                 Text(text = "Poziom trudności:")
                 DifficultyLevel.entries.forEach { level ->
-                    OptionButton(
+                    TicTacButton(
                         text = stringResource(level.value),
                         width = maxWidth / 3F,
                         textSize = 12.sp,
@@ -164,7 +164,7 @@ fun StartOptions(
                 Text(text = "Kto zaczyna:")
 
                 StartScreenFirstPlayerUI.entries.forEach { player ->
-                    OptionButton(
+                    TicTacButton(
                         text = stringResource(player.label),
                         width = maxWidth / 3F,
                         textSize = 12.sp,

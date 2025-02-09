@@ -20,10 +20,8 @@ class TicTacViewModel @Inject constructor(
     private val gameEngine: GameEngine
 ) : ViewModel() {
 
-
     private val _state = MutableStateFlow<GameState>(GameState.Loading)
     val state: StateFlow<GameState> = _state.asStateFlow()
-
 
     val animateMove: SharedFlow<Int> = gameEngine.computerMove
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(500))

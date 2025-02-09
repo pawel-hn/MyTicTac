@@ -27,11 +27,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mytictac.ui.theme.MyTicTacTheme
 
 const val BUTTON_TRANSITION = 700
 
 @Composable
-fun OptionButton(
+fun TicTacButton(
     modifier: Modifier = Modifier,
     width: Dp,
     enabledPrimaryColor: Color,
@@ -104,6 +105,13 @@ fun OptionButtonPreview() {
         modifier = Modifier.fillMaxSize().background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        StartButton()
+        TicTacButton(
+            width = 120.dp,
+            enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
+            enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
+            text = "Start",
+            isSelected = true,
+            onClick = {}
+        )
     }
 }
