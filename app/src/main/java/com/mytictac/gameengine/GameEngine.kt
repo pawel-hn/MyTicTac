@@ -83,11 +83,13 @@ class AndroidGameEngine(
     }
 
     override fun setDefault() {
-        gameRunning = true
-        tappedIds.removeAll { true }
-        _state.value = setStartGame()
-        coroutineScope.launch {
-            _computerMove.send(-1)
+        if (!isComputingMove) {
+            gameRunning = true
+            tappedIds.removeAll { true }
+            _state.value = setStartGame()
+            coroutineScope.launch {
+                _computerMove.send(-1)
+            }
         }
     }
 

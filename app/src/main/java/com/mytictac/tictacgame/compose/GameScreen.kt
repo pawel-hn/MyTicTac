@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,13 +66,16 @@ fun TicTacScreen() {
             }
 
             is GameState.CurrentGame -> {
-                LaunchedEffect(result.winner) {
+                LaunchedEffect(result.winner, result.reset) {
                     if (result.winner == Winner.Circle || result.winner == Winner.Cross) {
                         repeat(6) {
                             color =
                                 if (color == Color.White) Color(0xFFf5ebc4) else Color.White
                             delay(STANDARD_ANIMATION_DURATION.toLong())
                         }
+                    }
+                    if (result.reset) {
+                        color = Color.White
                     }
                 }
 
@@ -212,7 +213,6 @@ private fun CoroutineScope.animateFloatToOne(animatable: Animatable<Float, Anima
 fun emptyAnimations(): List<Animatable<Float, AnimationVector1D>> {
     return List(9) { Animatable(1f) }
 }
-
 
 private val animationIndexMap = mapOf(
     11 to 0, 12 to 1, 13 to 2,
