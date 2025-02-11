@@ -131,7 +131,7 @@ fun TicTacToeField(
 ) {
     val scope = rememberCoroutineScope()
     var animations by remember { mutableStateOf(emptyAnimations()) }
-    var winningLineAnimation = remember { Animatable(0F) }
+    var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
 
     LaunchedEffect(state.reset) {
         if (state.reset) {
