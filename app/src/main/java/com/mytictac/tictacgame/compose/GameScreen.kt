@@ -66,7 +66,7 @@ fun TicTacScreen() {
             }
 
             is GameState.CurrentGame -> {
-                LaunchedEffect(result.gameEndResult, result.reset) {
+                LaunchedEffect(result.gameEndResult) {
                     if (result.gameEndResult == GameEndResult.Circle ||
                         result.gameEndResult == GameEndResult.Cross) {
                         repeat(6) {
