@@ -1,13 +1,15 @@
 package com.mytictac.tictacgame.compose
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import com.mytictac.data.Field
 
-class FieldController(
+class FieldCoordinatesController(
     center: Offset,
     lineLength: Float
 ) {
-    private val firstColumnTopX = center.x - lineLength / 2F
+    private val firstColumnTopX = center.x - lineLength / 2
     private val firstColumnBottomX = center.x - lineLength / 6
     private val secondColumnBottomX = center.x + lineLength / 6
     private val thirdColumnBottomX = center.x + lineLength / 2
@@ -206,15 +208,9 @@ class FieldController(
     }
 
     fun getWinningLine(start: FieldXY, end: FieldXY): Pair<Offset, Offset> {
-        val type = when {
-            start.topLeft.y == end.topLeft.y -> WinningLine.HORIZONTAL
-            start.topLeft.x == end.topLeft.x -> WinningLine.VERTICAL
-            start.topLeft.x > end.topLeft.x -> WinningLine.DIAGONAL_ASCENDING
-            else -> WinningLine.DIAGONAL_DESCENDING
-        }
-
-        return when (type) {
-            WinningLine.VERTICAL -> {
+        return when {
+            // winning line vertical
+            start.topLeft.x == end.topLeft.x -> {
                 val first = Offset(
                     x = (start.topLeft.x + start.bottomRight.x) / 2,
                     y = start.topLeft.y
@@ -226,7 +222,8 @@ class FieldController(
                 first to second
             }
 
-            WinningLine.HORIZONTAL -> {
+            // winning line horizontal
+            start.topLeft.y == end.topLeft.y -> {
                 val first = Offset(
                     x = start.topLeft.x,
                     y = (start.topLeft.y + start.bottomRight.y) / 2
@@ -238,13 +235,8 @@ class FieldController(
                 first to second
             }
 
-            WinningLine.DIAGONAL_DESCENDING -> {
-                val first = start.topLeft
-                val second = end.bottomRight
-                first to second
-            }
-
-            WinningLine.DIAGONAL_ASCENDING -> {
+            // winning line ascending diagonal
+            start.topLeft.x > end.topLeft.x -> {
                 val first = Offset(
                     x = start.bottomRight.x,
                     y = start.topLeft.y
@@ -255,13 +247,26 @@ class FieldController(
                 )
                 first to second
             }
+
+            // winning line descending diagonal
+            else -> {
+                val first = start.topLeft
+                val second = end.bottomRight
+                first to second
+            }
         }
     }
 
-    enum class WinningLine {
-        VERTICAL, HORIZONTAL, DIAGONAL_ASCENDING, DIAGONAL_DESCENDING
-    }
-
+    data class FieldXY(val topLeft: Offset, val bottomRight: Offset, val id: Int)
 }
 
-data class FieldXY(val topLeft: Offset, val bottomRight: Offset, val  id: Int)
+@Composable
+fun rememberFieldCoordinatesController(
+    center: Offset,
+    lineLength: Float
+): FieldCoordinatesController = remember {
+    FieldCoordinatesController(
+        center = center,
+        lineLength = lineLength
+    )
+}

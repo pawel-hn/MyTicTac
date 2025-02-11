@@ -28,7 +28,8 @@ import com.mytictac.ui.theme.MyTicTacTheme
 @Composable
 fun GameCurrentPlayerHeader(
     modifier: Modifier,
-    state: GameState.CurrentGame){
+    state: GameState.CurrentGame
+) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -63,13 +64,10 @@ fun GameCurrentPlayerHeader(
                         when (player) {
                             is Player.Cross -> {
                                 drawCross(
-                                    fieldXY = FieldXY(
-                                        topLeft = Offset.Zero,
-                                        bottomRight = Offset(
-                                            40.dp.toPx(),
-                                            40.dp.toPx()
-                                        ),
-                                        id = 0
+                                    topLeft = Offset.Zero,
+                                    bottomRight = Offset(
+                                        40.dp.toPx(),
+                                        40.dp.toPx()
                                     ),
                                     width = 15F,
                                     endOffset = 10F
@@ -78,13 +76,10 @@ fun GameCurrentPlayerHeader(
 
                             is Player.Circle -> {
                                 drawTicCircle(
-                                    fieldXY = FieldXY(
-                                        topLeft = Offset.Zero,
-                                        bottomRight = Offset(
-                                            40.dp.toPx(),
-                                            40.dp.toPx()
-                                        ),
-                                        id = 0
+                                    topLeft = Offset.Zero,
+                                    bottomRight = Offset(
+                                        40.dp.toPx(),
+                                        40.dp.toPx()
                                     ),
                                     width = 15F,
                                     endOffset = 10F

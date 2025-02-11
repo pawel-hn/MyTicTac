@@ -8,14 +8,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 
-fun DrawScope.drawCross(fieldXY: FieldXY, width: Float, endOffset: Float = 60F) {
+fun DrawScope.drawCross(
+    topLeft: Offset,
+    bottomRight: Offset,
+    width: Float, endOffset: Float = 60F
+) {
     val path = Path().apply {
-        with(fieldXY) {
-            moveTo(x = topLeft.x + endOffset, y = topLeft.y + endOffset)
-            lineTo(x = bottomRight.x - endOffset, y = bottomRight.y - endOffset)
-            moveTo(x = topLeft.x + endOffset, y = bottomRight.y - endOffset)
-            lineTo(x = bottomRight.x - endOffset, y = topLeft.y + endOffset)
-        }
+        moveTo(x = topLeft.x + endOffset, y = topLeft.y + endOffset)
+        lineTo(x = bottomRight.x - endOffset, y = bottomRight.y - endOffset)
+        moveTo(x = topLeft.x + endOffset, y = bottomRight.y - endOffset)
+        lineTo(x = bottomRight.x - endOffset, y = topLeft.y + endOffset)
     }
     drawPath(
         path = path,
@@ -24,15 +26,19 @@ fun DrawScope.drawCross(fieldXY: FieldXY, width: Float, endOffset: Float = 60F) 
     )
 }
 
-fun DrawScope.drawTicCircle(fieldXY: FieldXY, width: Float, endOffset: Float = 60F) {
+fun DrawScope.drawTicCircle(
+    topLeft: Offset,
+    bottomRight: Offset,
+    width: Float, endOffset: Float = 60F
+) {
     drawArc(
         useCenter = false,
-        topLeft = Offset(fieldXY.topLeft.x + endOffset, fieldXY.topLeft.y + endOffset),
+        topLeft = Offset(topLeft.x + endOffset, topLeft.y + endOffset),
         startAngle = 0F,
         sweepAngle = 360F,
         size = Size(
-            width = fieldXY.bottomRight.x - fieldXY.topLeft.x - endOffset * 2,
-            height = fieldXY.bottomRight.y - fieldXY.topLeft.y - endOffset * 2
+            width = bottomRight.x - topLeft.x - endOffset * 2,
+            height = bottomRight.y - topLeft.y - endOffset * 2
         ),
         style = Stroke(width = width, cap = StrokeCap.Round),
         color = Color.Blue,

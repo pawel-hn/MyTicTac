@@ -39,14 +39,13 @@ class UIClickHelper(
 fun rememberUIClickHelper(
     currentTimeProvider: () -> Long = { System.currentTimeMillis() },
     minimumClickInterval: MinimumClickInterval = MinimumClickInterval.DefaultInterval
-): UIClickHelper {
-    return remember {
+): UIClickHelper = remember {
         UIClickHelper(
             currentTimeProvider = currentTimeProvider,
             minimumClickInterval = minimumClickInterval
         )
     }
-}
+
 
 fun Modifier.debouncedFieldClick(
     pointerInputKey: Boolean,

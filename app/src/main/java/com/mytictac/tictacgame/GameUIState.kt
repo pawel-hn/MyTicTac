@@ -1,8 +1,9 @@
 package com.mytictac.tictacgame
 
 import com.mytictac.data.Field
-import com.mytictac.data.Participant
 import com.mytictac.data.Player
+import com.mytictac.data.PlayerState
+import com.mytictac.data.GameEndResult
 
 sealed class GameState {
     data object Loading : GameState()
@@ -10,19 +11,8 @@ sealed class GameState {
         val currentPLayer: Player,
         val cross: PlayerState,
         val circle: PlayerState,
-        val winner: Winner?,
+        val gameEndResult: GameEndResult?,
         val winningSet: Set<Field>,
         val reset: Boolean,
     ) : GameState()
 }
-
-enum class Winner {
-    Cross,
-    Circle,
-    Draw
-}
-
-data class PlayerState(
-    val player: Player,
-    val moves: Set<Field>
-)

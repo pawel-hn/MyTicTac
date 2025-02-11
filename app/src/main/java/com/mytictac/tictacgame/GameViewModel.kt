@@ -34,7 +34,7 @@ class TicTacViewModel @Inject constructor(
                     currentPLayer = it.currentPLayer,
                     cross = it.cross,
                     circle = it.circle,
-                    winner = it.winner,
+                    gameEndResult = it.endResult,
                     winningSet = it.winningSet,
                     reset = false
                 )

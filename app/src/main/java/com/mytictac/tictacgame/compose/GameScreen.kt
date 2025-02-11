@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mytictac.data.GameEndResult
 import com.mytictac.tictacgame.GameState
 import com.mytictac.tictacgame.TicTacViewModel
-import com.mytictac.tictacgame.Winner
 import com.mytictac.ui.components.TicTacButton
 import com.mytictac.ui.debouncedFieldClick
 import com.mytictac.ui.theme.MyTicTacTheme
@@ -66,8 +66,9 @@ fun TicTacScreen() {
             }
 
             is GameState.CurrentGame -> {
-                LaunchedEffect(result.winner, result.reset) {
-                    if (result.winner == Winner.Circle || result.winner == Winner.Cross) {
+                LaunchedEffect(result.gameEndResult, result.reset) {
+                    if (result.gameEndResult == GameEndResult.Circle ||
+                        result.gameEndResult == GameEndResult.Cross) {
                         repeat(6) {
                             color =
                                 if (color == Color.White) Color(0xFFf5ebc4) else Color.White
@@ -93,11 +94,11 @@ fun TicTacScreen() {
                         Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
                     }
                     val lineLength = remember { constraints.maxWidth * 0.7F }
-                    val fields = remember { FieldController(centerOffset, lineLength) }
+                    val fields = rememberFieldCoordinatesController(centerOffset,lineLength)
 
                     TicTacToeField(
                         state = result,
-                        fieldController = fields,
+                        fieldCoordinatesController = fields,
                         onTap = { id -> viewModel.fieldTapped(id, false) },
                         animateComputerMove = computerMove,
                         setDefault = viewModel::setDefault
@@ -123,7 +124,7 @@ fun TicTacScreen() {
 @Composable
 fun TicTacToeField(
     state: GameState.CurrentGame,
-    fieldController: FieldController,
+    fieldCoordinatesController: FieldCoordinatesController,
     animateComputerMove: Int,
     onTap: (Int) -> Unit,
     setDefault: () -> Unit
@@ -159,33 +160,36 @@ fun TicTacToeField(
             .debouncedFieldClick(
                 pointerInputKey = true,
                 onClick = { position ->
-                    fieldController.getFieldXYFromOffset(position)?.let {
+                    fieldCoordinatesController.getFieldXYFromOffset(position)?.let {
                         onTap(it.id)
                         scope.animateFloatToOne(animations[getAnimationIndex(it.id)])
                     }
                 }
             )
     ) {
-        drawTicTacToeField(lineColor = Color.LightGray, field = fieldController.fieldPitch)
-
+        drawTicTacToeField(lineColor = Color.LightGray, field = fieldCoordinatesController.fieldPitch)
         state.cross.moves.forEach { field ->
+            val fieldXY = fieldCoordinatesController.getFieldXYFromId(field)
             drawCross(
-                fieldXY = fieldController.getFieldXYFromId(field),
+                topLeft = fieldXY.topLeft,
+                bottomRight = fieldXY.bottomRight,
                 width = animations[getAnimationIndex(field.id)].value
             )
         }
 
         state.circle.moves.forEach { field ->
+            val fieldXY = fieldCoordinatesController.getFieldXYFromId(field)
             drawTicCircle(
-                fieldXY = fieldController.getFieldXYFromId(field),
+                topLeft = fieldXY.topLeft,
+                bottomRight = fieldXY.bottomRight,
                 width = animations[getAnimationIndex(field.id)].value
             )
         }
 
         if (state.winningSet.isNotEmpty()) {
-            val winningLine = fieldController.getWinningLine(
-                start = fieldController.getFieldXYFromId(state.winningSet.first()),
-                end = fieldController.getFieldXYFromId(state.winningSet.last())
+            val winningLine = fieldCoordinatesController.getWinningLine(
+                start = fieldCoordinatesController.getFieldXYFromId(state.winningSet.first()),
+                end = fieldCoordinatesController.getFieldXYFromId(state.winningSet.last())
             )
 
             if (winningLineAnimation.value > 0F) {

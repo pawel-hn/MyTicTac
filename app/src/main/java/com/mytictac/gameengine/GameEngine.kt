@@ -9,8 +9,8 @@ import com.mytictac.data.center
 import com.mytictac.data.corners
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.victories
-import com.mytictac.tictacgame.PlayerState
-import com.mytictac.tictacgame.Winner
+import com.mytictac.data.PlayerState
+import com.mytictac.data.GameEndResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -68,7 +68,7 @@ class AndroidGameEngine(
 
     override fun selectedField(id: Int, computerMove: Boolean) {
         if (!tappedIds.contains(id) &&
-            _state.value.winner == null &&
+            _state.value.endResult == null &&
             (!isComputingMove || computerMove)) {
             tappedIds.add(id)
             _state.update { gameState ->
@@ -107,7 +107,7 @@ class AndroidGameEngine(
                 checkIfGameEnd(current, tapsX)?.let {
                     return currentGame.copy(
                         cross = currentGame.cross.copy(moves = tapsX),
-                        winner = it,
+                        endResult = it,
                         winningSet = getWinningFields(tapsX) ?: emptySet(),
                     )
                 }
@@ -122,7 +122,7 @@ class AndroidGameEngine(
                 checkIfGameEnd(current, tapsO)?.let {
                     return currentGame.copy(
                         circle = currentGame.circle.copy(moves = tapsO),
-                        winner = it,
+                        endResult = it,
                         winningSet = getWinningFields(tapsO) ?: emptySet(),
                     )
                 }
@@ -189,7 +189,7 @@ class AndroidGameEngine(
                 FirstPLayer.Cross -> options.cross
                 FirstPLayer.Circle -> options.circle
             },
-            winner = null,
+            endResult = null,
             winningSet = emptySet(),
             cross = PlayerState(options.cross, emptySet()),
             circle = PlayerState(options.circle, emptySet()),
@@ -218,11 +218,11 @@ class AndroidGameEngine(
     private fun checkIfGameEnd(
         currentPLayer: Player,
         currentPLayerMoves: Set<Field>
-    ): Winner? {
+    ): GameEndResult? {
         val result = if (getWinningFields(currentPLayerMoves) != null) {
             when (currentPLayer) {
-                is Player.Cross -> Winner.Cross
-                is Player.Circle -> Winner.Circle
+                is Player.Cross -> GameEndResult.Cross
+                is Player.Circle -> GameEndResult.Circle
             }
         } else {
             checkIfDraw()
@@ -239,9 +239,9 @@ class AndroidGameEngine(
         return victory
     }
 
-    private fun checkIfDraw(): Winner? {
+    private fun checkIfDraw(): GameEndResult? {
         return if (tappedIds.size == Field.entries.size) {
-            Winner.Draw
+            GameEndResult.Draw
         } else {
             null
         }
@@ -252,6 +252,6 @@ data class CurrentGame(
     val currentPLayer: Player,
     val cross: PlayerState,
     val circle: PlayerState,
-    val winner: Winner?,
+    val endResult: GameEndResult?,
     val winningSet: Set<Field>,
 )

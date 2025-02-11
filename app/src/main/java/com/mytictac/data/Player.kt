@@ -7,10 +7,8 @@ sealed interface Player {
     data class Circle(override val participant: Participant) : Player
 }
 
-enum class Participant {
-    Human,Computer
-}
 
-enum class FirstPLayer {
-    Cross,Circle
-}
+data class PlayerState(
+    val player: Player,
+    val moves: Set<Field>
+)
