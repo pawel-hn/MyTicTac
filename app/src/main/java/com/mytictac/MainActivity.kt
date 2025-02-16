@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +34,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .background(color = MyTicTacTheme.colours.backgroundScreen)
-                            .statusBarsPadding(),
+                            .statusBarsPadding()
+                            .systemBarsPadding(),
                         targetState = splash,
                         animationSpec = tween(1000),
                         label = ""

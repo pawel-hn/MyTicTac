@@ -22,13 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytictac.data.Player
-import com.mytictac.tictacgame.GameState
+import com.mytictac.tictacgame.GameUIState
 import com.mytictac.ui.theme.MyTicTacTheme
 
 @Composable
 fun GameCurrentPlayerHeader(
     modifier: Modifier,
-    state: GameState.CurrentGame
+    state: GameUIState.CurrentCurrentGameUI
 ) {
     Row(
         modifier = modifier,
