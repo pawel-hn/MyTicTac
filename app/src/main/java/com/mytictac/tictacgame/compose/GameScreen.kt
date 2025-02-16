@@ -16,13 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -52,9 +50,8 @@ fun TicTacScreen(
     viewModel: GameViewModel,
     router: GameRouter,
 ) {
-
-    val gameDialog: MutableState<GameDialog?> = rememberSaveable { mutableStateOf(null) }
-    val animationEvent: MutableState<AnimationEvent?> = remember{ mutableStateOf(null) }
+    val gameDialog = rememberSaveable { mutableStateOf<GameDialog?>(null) }
+    val animationEvent = remember { mutableStateOf<AnimationEvent?>(null) }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -64,15 +61,19 @@ fun TicTacScreen(
                 is GameUIEvents.ShowDialog -> {
                     gameDialog.value = it.dialog
                 }
+
                 is GameUIEvents.NavigateToMainScreen -> {
                     router.backToMainScreen()
                 }
+
                 is GameUIEvents.ComputerMove -> {
                     animationEvent.value = AnimationEvent.AnimateComputerMove(it.fieldId)
                 }
+
                 GameUIEvents.ResetGame -> {
                     animationEvent.value = AnimationEvent.ResetAnimations
                 }
+
                 is GameUIEvents.VictoryLine -> {
                     animationEvent.value = AnimationEvent.AnimateWinningLine(it.winningFields)
                 }
@@ -157,7 +158,7 @@ fun TicTacToeField(
 ) {
     val scope = rememberCoroutineScope()
     val animations by remember { mutableStateOf(emptyAnimations()) }
-    var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
+    val winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
 
     LaunchedEffect(animationEvent) {
         when (animationEvent) {

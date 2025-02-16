@@ -28,26 +28,25 @@ class GameViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch {
-                gameEngine.state.collect {
-                    _state.value = GameUIState.CurrentCurrentGameUI(
-                        currentPLayer = it.currentPLayer,
-                        cross = it.cross,
-                        circle = it.circle,
-                    )
-                }
+            gameEngine.state.collect {
+                _state.value = GameUIState.CurrentCurrentGameUI(
+                    currentPLayer = it.currentPLayer,
+                    cross = it.cross,
+                    circle = it.circle,
+                )
             }
-            launch {
-                gameEngine.gameEvent.collect {
-                    when (it) {
-                        is GameEvent.ComputerMove -> {
-                            _event.emit(GameUIEvents.ComputerMove(it.fieldId))
-                        }
+        }
 
-                        is GameEvent.GameEnd -> {
-                            if (it.result != GameEndResult.Draw) {
-                                _event.emit(GameUIEvents.VictoryLine(it.winningSet))
-                            }
+        viewModelScope.launch {
+            gameEngine.gameEvent.collect {
+                when (it) {
+                    is GameEvent.ComputerMove -> {
+                        _event.emit(GameUIEvents.ComputerMove(it.fieldId))
+                    }
+
+                    is GameEvent.GameEnd -> {
+                        if (it.result != GameEndResult.Draw) {
+                            _event.emit(GameUIEvents.VictoryLine(it.winningSet))
                         }
                     }
                 }

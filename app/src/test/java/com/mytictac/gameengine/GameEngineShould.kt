@@ -33,12 +33,9 @@ class GameEngineShould {
     private lateinit var sut: GameEngine
 
     private val mockGameOptionsService: GameOptionsService = mockk()
-
     private val gameOptionsFlow = MutableStateFlow(defaultGameOptions)
-
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(testDispatcher)
-
     private val fieldId = Field.One.id
 
     @Before
