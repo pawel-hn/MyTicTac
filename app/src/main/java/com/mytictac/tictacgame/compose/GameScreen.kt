@@ -1,7 +1,6 @@
 package com.mytictac.tictacgame.compose
 
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -31,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mytictac.data.Field
 import com.mytictac.tictacgame.GameDialog
 import com.mytictac.tictacgame.GameRouter
 import com.mytictac.tictacgame.GameUIEvents
@@ -54,9 +54,9 @@ fun TicTacScreen(
 ) {
 
     val gameDialog: MutableState<GameDialog?> = rememberSaveable { mutableStateOf(null) }
+    val animationEvent: MutableState<AnimationEvent?> = remember{ mutableStateOf(null) }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val event by viewModel.event.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(Unit) {
         viewModel.event.collectLatest {
@@ -67,8 +67,15 @@ fun TicTacScreen(
                 is GameUIEvents.NavigateToMainScreen -> {
                     router.backToMainScreen()
                 }
-
-                else -> Unit
+                is GameUIEvents.ComputerMove -> {
+                    animationEvent.value = AnimationEvent.AnimateComputerMove(it.fieldId)
+                }
+                GameUIEvents.ResetGame -> {
+                    animationEvent.value = AnimationEvent.ResetAnimations
+                }
+                is GameUIEvents.VictoryLine -> {
+                    animationEvent.value = AnimationEvent.AnimateWinningLine(it.winningFields)
+                }
             }
         }
     }
@@ -105,7 +112,7 @@ fun TicTacScreen(
                     TicTacToeField(
                         state = result,
                         fieldCoordinatesController = fields,
-                        gameEvent = event,
+                        animationEvent = animationEvent.value,
                         onTap = { id -> viewModel.fieldTapped(id, false) },
                         setDefault = viewModel::setDefault
                     )
@@ -144,7 +151,7 @@ fun TicTacScreen(
 fun TicTacToeField(
     state: GameUIState.CurrentCurrentGameUI,
     fieldCoordinatesController: FieldCoordinatesController,
-    gameEvent: GameUIEvents?,
+    animationEvent: AnimationEvent?,
     onTap: (Int) -> Unit,
     setDefault: () -> Unit,
 ) {
@@ -152,22 +159,22 @@ fun TicTacToeField(
     val animations by remember { mutableStateOf(emptyAnimations()) }
     var winningLineAnimation by remember { mutableStateOf(Animatable(0F)) }
 
-    LaunchedEffect(gameEvent) {
-        when (gameEvent) {
-            is GameUIEvents.ComputerMove -> {
-                if (gameEvent.fieldId > 0) {
-                    animateFloatToOne(animations[getAnimationIndex(gameEvent.fieldId)])
+    LaunchedEffect(animationEvent) {
+        when (animationEvent) {
+            is AnimationEvent.AnimateComputerMove -> {
+                if (animationEvent.fieldId > 0) {
+                    animateFloatToOne(animations[getAnimationIndex(animationEvent.fieldId)])
                 }
             }
 
-            GameUIEvents.ResetGame -> {
+            AnimationEvent.ResetAnimations -> {
                 animations.forEach { it.snapTo(1F) }
-                winningLineAnimation = Animatable(0F)
+                winningLineAnimation.snapTo(0F)
                 setDefault()
             }
 
-            is GameUIEvents.VictoryLine -> {
-                if (gameEvent.winningFields.isNotEmpty()) {
+            is AnimationEvent.AnimateWinningLine -> {
+                if (animationEvent.winningFields.isNotEmpty()) {
                     winningLineAnimation.animateTo(
                         20F,
                         tween(STANDARD_ANIMATION_DURATION, STANDARD_ANIMATION_DURATION)
@@ -214,10 +221,12 @@ fun TicTacToeField(
             )
         }
 
-        if (gameEvent is GameUIEvents.VictoryLine) {
+        if (animationEvent is AnimationEvent.AnimateWinningLine) {
             val winningLine = fieldCoordinatesController.getWinningLine(
-                start = fieldCoordinatesController.getFieldXYFromId(gameEvent.winningFields.first()),
-                end = fieldCoordinatesController.getFieldXYFromId(gameEvent.winningFields.last())
+                start = fieldCoordinatesController
+                    .getFieldXYFromId(animationEvent.winningFields.first()),
+                end = fieldCoordinatesController
+                    .getFieldXYFromId(animationEvent.winningFields.last())
             )
 
             if (winningLineAnimation.value > 0F) {
@@ -254,3 +263,10 @@ private val animationIndexMap = mapOf(
 )
 
 fun getAnimationIndex(id: Int) = animationIndexMap[id] ?: -1
+
+
+sealed interface AnimationEvent {
+    data object ResetAnimations : AnimationEvent
+    data class AnimateWinningLine(val winningFields: Set<Field>) : AnimationEvent
+    data class AnimateComputerMove(val fieldId: Int) : AnimationEvent
+}
