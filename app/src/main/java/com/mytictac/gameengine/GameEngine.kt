@@ -21,10 +21,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -42,8 +44,14 @@ class AndroidGameEngine(
 
     private val options = gameOptionsService.gameOptions.value
 
-    private val _state = MutableStateFlow(lazy { setStartGame() }.value)
-    override val state: StateFlow<CurrentGame> = _state.asStateFlow()
+    private val isGameRunning = MutableStateFlow(true)
+    private val currentGame = MutableStateFlow(lazy { setStartGame() }.value)
+
+    override val state: StateFlow<CurrentGame> = combine(
+        currentGame,isGameRunning
+    ) { game, isRunning ->
+        game.copy(isGameRunning = isRunning)
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(500), currentGame.value)
 
     private val _gameEvent = MutableSharedFlow<GameEvent>()
     override val gameEvent: SharedFlow<GameEvent> = _gameEvent.asSharedFlow()
@@ -52,7 +60,7 @@ class AndroidGameEngine(
 
     private val tappedIds = mutableSetOf<Int>()
 
-    private var isGameRunning = true
+
     private var isComputingMove = false
 
 
@@ -80,7 +88,7 @@ class AndroidGameEngine(
            canMakeMove(id, computerMove)
         ) {
             tappedIds.add(id)
-            _state.update { gameState ->
+            currentGame.update { gameState ->
                 makeMove(gameState, id)
             }
 
@@ -97,8 +105,8 @@ class AndroidGameEngine(
         if (!isComputingMove) {
 
             tappedIds.removeAll { true }
-            _state.value = setStartGame()
-            isGameRunning = true
+            currentGame.value = setStartGame()
+            isGameRunning.value = true
             coroutineScope.launch {
                 _gameEvent.emit(GameEvent.ComputerMove(-1))
             }
@@ -143,7 +151,7 @@ class AndroidGameEngine(
     }
 
     private fun chooseComputerMove(): Field {
-        val gameState = _state.value
+        val gameState = currentGame.value
 
         val availableFields = getAvailableFields()
 
@@ -178,7 +186,7 @@ class AndroidGameEngine(
 
     private fun canMakeMove(id: Int, computerMove: Boolean) =
         !tappedIds.contains(id) &&
-                isGameRunning &&
+                isGameRunning.value &&
                 (!isComputingMove || computerMove)
 
 
@@ -199,6 +207,7 @@ class AndroidGameEngine(
         },
         cross = PlayerState(options.cross, emptySet()),
         circle = PlayerState(options.circle, emptySet()),
+        isGameRunning = true
     )
 
     private fun setCurrentPlayer(
@@ -217,7 +226,7 @@ class AndroidGameEngine(
     }
 
     private fun getAvailableFields(): Set<Field> {
-        val currentGame = _state.value
+        val currentGame = currentGame.value
         return Field.entries.toSet() - currentGame.cross.moves - currentGame.circle.moves
     }
 
@@ -233,7 +242,7 @@ class AndroidGameEngine(
         } else {
             checkIfDraw()
         }
-        isGameRunning = result == null
+        isGameRunning.value = result == null
         return result
     }
 
@@ -269,6 +278,7 @@ data class CurrentGame(
     val currentPLayer: Player,
     val cross: PlayerState,
     val circle: PlayerState,
+    val isGameRunning: Boolean
 )
 
 sealed class GameEvent {

@@ -8,6 +8,8 @@ import androidx.navigation.compose.rememberNavController
 import com.mytictac.start.StartRouter
 import com.mytictac.start.StartScreen
 import com.mytictac.start.StartScreenViewModel
+import com.mytictac.tictacgame.GameRouter
+import com.mytictac.tictacgame.GameViewModel
 import com.mytictac.tictacgame.compose.TicTacScreen
 
 
@@ -35,7 +37,15 @@ fun AppNavGraph() {
             )
         }
         composable(route = Screen.GAME.name) {
-            TicTacScreen()
+            val viewModel: GameViewModel = hiltViewModel()
+            TicTacScreen(
+                viewModel = viewModel,
+                router = object : GameRouter {
+                    override fun backToMainScreen() {
+                        navController.navigateUp()
+                    }
+                }
+            )
         }
     }
 }

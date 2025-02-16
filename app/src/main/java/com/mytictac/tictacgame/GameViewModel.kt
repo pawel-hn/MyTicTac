@@ -1,6 +1,5 @@
 package com.mytictac.tictacgame
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytictac.gameengine.GameEngine
@@ -16,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TicTacViewModel @Inject constructor(
+class GameViewModel @Inject constructor(
     private val gameEngine: GameEngine
 ) : ViewModel() {
 
@@ -39,7 +38,6 @@ class TicTacViewModel @Inject constructor(
             }
             launch {
                 gameEngine.gameEvent.collect {
-                    Log.d("PHN", "vm collect: ${it}")
                     when (it) {
                         is GameEvent.ComputerMove -> {
                             _event.emit(GameUIEvents.ComputerMove(it.fieldId))
@@ -49,6 +47,22 @@ class TicTacViewModel @Inject constructor(
                         }                        }
                 }
             }
+        }
+    }
+
+    fun onGestureBack() {
+        if (gameEngine.state.value.isGameRunning) {
+            viewModelScope.launch {
+                _event.emit(GameUIEvents.ShowDialog(GameDialog.CancelGame))
+            }
+        } else {
+            navigateToMainScreen()
+        }
+    }
+
+    fun navigateToMainScreen() {
+        viewModelScope.launch {
+            _event.emit(GameUIEvents.NavigateToMainScreen)
         }
     }
 
