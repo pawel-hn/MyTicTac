@@ -9,8 +9,7 @@ enum class Field(val id: Int) {
     Six(23),
     Seven(31),
     Eight(32),
-    Nine(33);
-
+    Nine(33)
 }
 
 val corners = setOf(Field.One, Field.Three, Field.Seven, Field.Nine)

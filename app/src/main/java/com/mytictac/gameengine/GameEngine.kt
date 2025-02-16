@@ -55,12 +55,8 @@ class AndroidGameEngine(
     override val gameEvent: SharedFlow<GameEvent> = _gameEvent.asSharedFlow()
 
     private val initiateComputerMove = Channel<Unit>()
-
     private val tappedIds = mutableSetOf<Int>()
-
-
     private var isComputingMove = false
-
 
     init {
         if (options.singlePlayer) {

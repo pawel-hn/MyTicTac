@@ -13,7 +13,7 @@ import org.junit.Before
 import org.junit.Test
 
 class GameOptionsServiceShould {
-    lateinit var sut: GameOptionsService
+    private lateinit var sut: GameOptionsService
 
     @Before
     fun setUp() {
