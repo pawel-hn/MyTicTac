@@ -41,7 +41,7 @@ class StartScreenViewModel @Inject constructor(
     )
 
     fun onPlayerCountChanged(isSinglePlayer: Boolean) =
-        gameOptionsService.onPlayerCountChanged(isSinglePlayer)
+        gameOptionsService.setSinglePlayer(isSinglePlayer)
 
     fun onDifficultyChanged(difficultyLevel: DifficultyLevel) =
         gameOptionsService.onDifficultyChanged(difficultyLevel)

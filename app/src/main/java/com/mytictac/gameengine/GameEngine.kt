@@ -1,7 +1,5 @@
 package com.mytictac.gameengine
 
-
-import android.util.Log
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Field
 import com.mytictac.data.FirstPLayer
@@ -268,7 +266,6 @@ class AndroidGameEngine(
             if (isComputingMove) {
                 delay(500)
             }
-            Log.d("PHN", "sendEndGame: $result")
             _gameEvent.emit(GameEvent.GameEnd(result, winningSet))
         }
     }

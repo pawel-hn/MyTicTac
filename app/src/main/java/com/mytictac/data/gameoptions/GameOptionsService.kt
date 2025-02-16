@@ -13,7 +13,7 @@ interface GameOptionsService {
 
     val gameOptions: StateFlow<GameOptions>
 
-    fun onPlayerCountChanged(singlePlayer: Boolean)
+    fun setSinglePlayer(singlePlayer: Boolean)
     fun onDifficultyChanged(difficultyLevel: DifficultyLevel)
     fun onFirstPlayerChanged(firstPlayer: FirstPLayer)
 }
@@ -26,7 +26,7 @@ class AndroidGameOptionsService : GameOptionsService {
     private val _gameOptions = MutableStateFlow(defaultGameOptions)
     override val gameOptions: StateFlow<GameOptions> = _gameOptions.asStateFlow()
 
-    override fun onPlayerCountChanged(singlePlayer: Boolean) {
+    override fun setSinglePlayer(singlePlayer: Boolean) {
         _gameOptions.update { options ->
             val players = getPlayers(singlePlayer)
             options.copy(
