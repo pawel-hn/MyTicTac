@@ -11,7 +11,6 @@ import com.mytictac.gameengine.GameEngine
 import com.mytictac.gameengine.GameEvent
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -167,28 +166,29 @@ class GameViewModelShould {
     }
 
     @Test
-    fun `should emit navigateToMainScreen event when on gesture back and game is not running`() = runTest {
-        // given
-        every { gameEngine.gameEvent } returns gameEventFlow
-        every { gameEngine.state } returns gameStateFlow
+    fun `should emit navigateToMainScreen event when on gesture back and game is not running`() =
+        runTest {
+            // given
+            every { gameEngine.gameEvent } returns gameEventFlow
+            every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+            sut = GameViewModel(gameEngine)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                sut.event.toList(events)
+            }
+
+            // when
+            gameStateFlow.value = gameState.copy(isGameRunning = false)
+            sut.onGestureBack()
+
+            // then
+            assertEquals(GameUIEvents.NavigateToMainScreen, events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
         }
-
-        // when
-        gameStateFlow.value = gameState.copy(isGameRunning = false)
-        sut.onGestureBack()
-
-        // then
-        assertEquals(GameUIEvents.NavigateToMainScreen, events.first())
-        assertEquals(1, events.size)
-
-        job.cancel()
-    }
 
     @Test
     fun `should emit ResetGame event when reset is clicked`() = runTest {
