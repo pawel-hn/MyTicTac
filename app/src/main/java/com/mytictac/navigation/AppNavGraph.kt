@@ -1,4 +1,4 @@
-package com.mytictac
+package com.mytictac.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel

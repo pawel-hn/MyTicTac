@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mytictac.start.StartScreen
+import com.mytictac.navigation.AppNavGraph
 import com.mytictac.ui.theme.MyTicTacTheme
 import dagger.hilt.android.AndroidEntryPoint
 

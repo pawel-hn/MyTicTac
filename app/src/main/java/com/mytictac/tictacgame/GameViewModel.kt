@@ -2,6 +2,7 @@ package com.mytictac.tictacgame
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mytictac.data.GameEndResult
 import com.mytictac.gameengine.GameEngine
 import com.mytictac.gameengine.GameEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,9 +43,13 @@ class GameViewModel @Inject constructor(
                         is GameEvent.ComputerMove -> {
                             _event.emit(GameUIEvents.ComputerMove(it.fieldId))
                         }
+
                         is GameEvent.GameEnd -> {
-                            _event.emit(GameUIEvents.VictoryLine(it.winningSet))
-                        }                        }
+                            if (it.result != GameEndResult.Draw) {
+                                _event.emit(GameUIEvents.VictoryLine(it.winningSet))
+                            }
+                        }
+                    }
                 }
             }
         }

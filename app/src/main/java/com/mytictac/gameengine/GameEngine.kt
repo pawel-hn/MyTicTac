@@ -48,7 +48,7 @@ class AndroidGameEngine(
     private val currentGame = MutableStateFlow(lazy { setStartGame() }.value)
 
     override val state: StateFlow<CurrentGame> = combine(
-        currentGame,isGameRunning
+        currentGame, isGameRunning
     ) { game, isRunning ->
         game.copy(isGameRunning = isRunning)
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(500), currentGame.value)
@@ -85,7 +85,7 @@ class AndroidGameEngine(
 
     override fun onFieldSelected(id: Int, computerMove: Boolean) {
         if (
-           canMakeMove(id, computerMove)
+            canMakeMove(id, computerMove)
         ) {
             tappedIds.add(id)
             currentGame.update { gameState ->
@@ -266,7 +266,7 @@ class AndroidGameEngine(
     private fun sendEndGame(result: GameEndResult, winningSet: Set<Field>) {
         coroutineScope.launch {
             if (isComputingMove) {
-                delay(700)
+                delay(500)
             }
             Log.d("PHN", "sendEndGame: $result")
             _gameEvent.emit(GameEvent.GameEnd(result, winningSet))
