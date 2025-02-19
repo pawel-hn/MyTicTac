@@ -31,7 +31,6 @@ object DataModule {
     ): DataStoreManager = AndroidDataStoreManager(appContext)
 }
 
-
 @Module
 @InstallIn(ViewModelComponent::class)
 object DataModuleScoped {
