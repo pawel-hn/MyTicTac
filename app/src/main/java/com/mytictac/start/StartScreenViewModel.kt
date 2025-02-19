@@ -1,10 +1,12 @@
 package com.mytictac.start
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.FirstPLayer
 import com.mytictac.data.gameoptions.GameOptionsService
+import com.mytictac.data.savegame.IsSavedGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartScreenViewModel @Inject constructor(
-    private val gameOptionsService: GameOptionsService
+    private val gameOptionsService: GameOptionsService,
+    private val isSavedGameUseCase: IsSavedGameUseCase
 ) : ViewModel() {
 
     private val _startScreenEvent = Channel<StartScreenUIEvent>()
@@ -40,6 +43,10 @@ class StartScreenViewModel @Inject constructor(
         defaultStartScreenUIState
     )
 
+    init {
+        getSavedGame()
+    }
+
     fun onPlayerCountChanged(isSinglePlayer: Boolean) =
         gameOptionsService.setSinglePlayer(isSinglePlayer)
 
@@ -56,6 +63,13 @@ class StartScreenViewModel @Inject constructor(
     fun onStartGame() {
         viewModelScope.launch {
             _startScreenEvent.send(StartScreenUIEvent.StartGame)
+        }
+    }
+
+    private fun getSavedGame() {
+        viewModelScope.launch {
+            val isSavedGame = isSavedGameUseCase.invoke()
+            Log.d("PHN", "getSavedGame: $isSavedGame")
         }
     }
 }

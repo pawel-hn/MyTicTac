@@ -20,7 +20,6 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 
 interface DataStoreManager {
 
-    // These need to be static - changing UserPrefs would cause location of data values to also change
     enum class PreferenceKey {
         SAVED_GAME
     }

@@ -57,7 +57,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
         val initialState = sut.state.first()
 
         // then
@@ -74,7 +75,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
 
         val events = mutableListOf<GameEvent>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -103,7 +105,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
 
         // When
         sut.onFieldSelected(fieldId, computerMove = false)
@@ -124,7 +127,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
 
         // Given
         sut.onFieldSelected(fieldId, computerMove = false)
@@ -149,7 +153,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
 
         val events = mutableListOf<GameEvent>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -192,7 +197,8 @@ class GameEngineShould {
         sut = AndroidGameEngine(
             gameOptionsService = mockGameOptionsService,
             dataStoreManager = mockDataStoreManager,
-            coroutineScope = testScope)
+            coroutineScope = testScope
+        )
         val allFields = Field.entries.map { it }
 
         val events = mutableListOf<GameEvent>()
