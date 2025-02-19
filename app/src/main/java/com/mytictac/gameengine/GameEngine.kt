@@ -11,6 +11,7 @@ import com.mytictac.data.Player
 import com.mytictac.data.PlayerState
 import com.mytictac.data.center
 import com.mytictac.data.corners
+import com.mytictac.data.edges
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.data.victories
@@ -123,6 +124,7 @@ class AndroidGameEngine(
                 preferenceKey = DataStoreManager.PreferenceKey.SAVED_GAME,
                 value = data
             )
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(Exception("Game not saved."))
         }
@@ -170,24 +172,34 @@ class AndroidGameEngine(
 
         val availableFields = getAvailableFields()
 
-        val computer = when {
-            gameState.cross.player.participant == Participant.Computer -> gameState.cross
-            else -> gameState.circle
-        }
-        val human = when (computer) {
-            gameState.cross -> gameState.circle
-            else -> gameState.cross
+        val (computer, human) = if (gameState.cross.player.participant == Participant.Computer) {
+            gameState.cross to gameState.circle
+        } else {
+            gameState.circle to gameState.cross
         }
 
-        when (options.difficultyLevel) {
+        when (val lvl = options.difficultyLevel) {
             DifficultyLevel.EASY -> return availableFields.random()
-            DifficultyLevel.IMPOSSIBLE -> {
+            else -> {
+                // winning move
+               findWinningMove(computer.moves, availableFields)?.let { return it }
 
-                val winningMove = findWinningMove(computer.moves, availableFields)
-                if (winningMove != null) return winningMove
+                // blocking move
+                findWinningMove(human.moves, availableFields)?.let { return it }
 
-                val blockingMove = findWinningMove(human.moves, availableFields)
-                if (blockingMove != null) return blockingMove
+                if (lvl == DifficultyLevel.IMPOSSIBLE) {
+                    if (human.moves.size == 2 && human.moves.first() in edges && human.moves.last() in corners) {
+                        val oppositeCorner = findOppositeCorner(human.moves.last())
+                        oppositeCorner?.let {
+                            if (oppositeCorner in availableFields) return oppositeCorner
+                        }
+                    }
+
+                    if (human.moves.size == 2 && human.moves.any { it in corners }) {
+                        val safeMove = edges.firstOrNull { it in availableFields }
+                        if (safeMove != null) return safeMove
+                    }
+                }
 
                 if (center in availableFields) return center
 
@@ -199,12 +211,6 @@ class AndroidGameEngine(
         }
     }
 
-    private fun canMakeMove(id: Int, computerMove: Boolean) =
-        !tappedIds.contains(id) &&
-                isGameRunning.value &&
-                (!isComputingMove || computerMove)
-
-
     private fun findWinningMove(currentMoves: Set<Field>, availableFields: Set<Field>): Field? {
         for (victory in victories) {
             val missingFields = victory - currentMoves
@@ -214,6 +220,21 @@ class AndroidGameEngine(
         }
         return null
     }
+
+    private fun findOppositeCorner(corner: Field): Field? {
+        return when (corner) {
+            Field.One -> Field.Nine
+            Field.Three -> Field.Seven
+            Field.Seven -> Field.Three
+            Field.Nine -> Field.One
+            else -> null
+        }
+    }
+
+    private fun canMakeMove(id: Int, computerMove: Boolean) =
+        !tappedIds.contains(id) &&
+                isGameRunning.value &&
+                (!isComputingMove || computerMove)
 
     private fun setStartGame() = CurrentGame(
         currentPLayer = when (options.firstPlayer) {

@@ -1,12 +1,12 @@
 package com.mytictac.tictacgame
 
+import com.mytictac.data.CurrentGame
 import com.mytictac.data.Field
 import com.mytictac.data.GameEndResult
 import com.mytictac.data.Participant
 import com.mytictac.data.Player
 import com.mytictac.data.PlayerState
 import com.mytictac.data.victories
-import com.mytictac.gameengine.CurrentGame
 import com.mytictac.gameengine.GameEngine
 import com.mytictac.gameengine.GameEvent
 import io.mockk.every
