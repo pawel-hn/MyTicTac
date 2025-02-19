@@ -1,5 +1,6 @@
 package com.mytictac.gameengine
 
+import android.util.Log
 import com.mytictac.data.CurrentGame
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Field
@@ -11,6 +12,7 @@ import com.mytictac.data.PlayerState
 import com.mytictac.data.center
 import com.mytictac.data.corners
 import com.mytictac.data.gameoptions.GameOptionsService
+import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.data.victories
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 
 interface GameEngine {
@@ -35,10 +38,13 @@ interface GameEngine {
     val gameEvent: Flow<GameEvent>
     fun onFieldSelected(id: Int, computerMove: Boolean)
     fun setDefault()
+    suspend fun saveGame(): Result<Unit>
 }
 
 class AndroidGameEngine(
     gameOptionsService: GameOptionsService,
+    private val dataStoreManager: DataStoreManager,
+    private val json: Json = Json,
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) : GameEngine {
 
@@ -106,6 +112,19 @@ class AndroidGameEngine(
             coroutineScope.launch {
                 _gameEvent.emit(GameEvent.ComputerMove(-1))
             }
+        }
+    }
+
+    override suspend fun saveGame(): Result<Unit> {
+        return try {
+            Log.d("PHN", "gameEngine: ${Thread.currentThread()}")
+            val data = json.encodeToString(CurrentGame.serializer(), currentGame.value)
+            dataStoreManager.store(
+                preferenceKey = DataStoreManager.PreferenceKey.SAVED_GAME,
+                value = data
+            )
+        } catch (e: Exception) {
+            Result.failure(Exception("Game not saved."))
         }
     }
 

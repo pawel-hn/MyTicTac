@@ -7,6 +7,7 @@ sealed interface GameUIEvents {
     data class VictoryLine(val winningFields: Set<Field>) : GameUIEvents
     data class ComputerMove(val fieldId: Int) : GameUIEvents
     data class ShowDialog(val dialog: GameDialog) : GameUIEvents
+    data class ShowToast(val toast: GameToast) : GameUIEvents
     data object NavigateToMainScreen : GameUIEvents
 }
 
@@ -21,5 +22,17 @@ sealed interface GameDialog {
         override val message: String = "Are you sure you want to cancel the game?"
         override val confirmButtonText: String = "Yes"
         override val cancelButtonText: String = "No"
+    }
+}
+
+sealed interface GameToast {
+    val message: String
+
+    data object GameSaved : GameToast {
+        override val message: String = "Game saved."
+    }
+
+    data object GameSaveFail : GameToast {
+        override val message: String = "Error, game not saved."
     }
 }

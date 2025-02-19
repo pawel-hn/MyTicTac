@@ -1,6 +1,7 @@
 package com.mytictac.di
 
 import com.mytictac.data.gameoptions.GameOptionsService
+import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.gameengine.AndroidGameEngine
 import com.mytictac.gameengine.GameEngine
 import dagger.Module
@@ -16,6 +17,7 @@ object GameEngineModule {
     @ViewModelScoped
     @Provides
     fun provideGameEngine(
-        gameOptionsService: GameOptionsService
-    ): GameEngine = AndroidGameEngine(gameOptionsService)
+        gameOptionsService: GameOptionsService,
+        dataStoreManager: DataStoreManager
+    ): GameEngine = AndroidGameEngine(gameOptionsService,dataStoreManager)
 }

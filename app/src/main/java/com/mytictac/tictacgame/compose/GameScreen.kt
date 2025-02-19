@@ -1,6 +1,7 @@
 package com.mytictac.tictacgame.compose
 
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,8 +56,8 @@ fun TicTacScreen(
 ) {
     val gameDialog = rememberSaveable { mutableStateOf<GameDialog?>(null) }
     val animationEvent = remember { mutableStateOf<AnimationEvent?>(null) }
-
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.event.collectLatest {
@@ -78,6 +80,10 @@ fun TicTacScreen(
 
                 is GameUIEvents.VictoryLine -> {
                     animationEvent.value = AnimationEvent.AnimateWinningLine(it.winningFields)
+                }
+
+                is GameUIEvents.ShowToast -> {
+                    Toast.makeText(context, it.toast.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -122,8 +128,8 @@ fun TicTacScreen(
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.padding(Padding.large),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = Padding.large),
+                    horizontalArrangement = Arrangement.SpaceAround,
                 ) {
                     TicTacButton(
                         width = 120.dp,
