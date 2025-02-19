@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mytictac.tictacgame.GameDialog
+import com.mytictac.game.GameDialog
 
 @Composable
 fun TicTacDialog(gameDialog: GameDialog, onConfirm: () -> Unit, onCancel: () -> Unit) {

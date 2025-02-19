@@ -1,5 +1,8 @@
 package com.mytictac.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class Field(val id: Int) {
     One(11),
     Two(12),
@@ -13,8 +16,8 @@ enum class Field(val id: Int) {
 }
 
 val corners = setOf(Field.One, Field.Three, Field.Seven, Field.Nine)
-
 val center = Field.Five
+val edges = setOf(Field.Two, Field.Four, Field.Six, Field.Eight)
 
 val victories = setOf(
     setOf(Field.One, Field.Two, Field.Three),

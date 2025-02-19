@@ -1,8 +1,7 @@
-package com.mytictac.tictacgame
+package com.mytictac.game
 
 import com.mytictac.data.Player
 import com.mytictac.data.PlayerState
-import com.mytictac.data.GameEndResult
 
 sealed class GameUIState {
     data object Loading : GameUIState()

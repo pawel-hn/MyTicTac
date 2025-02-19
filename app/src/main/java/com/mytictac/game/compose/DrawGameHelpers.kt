@@ -1,4 +1,4 @@
-package com.mytictac.tictacgame.compose
+package com.mytictac.game.compose
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

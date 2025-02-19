@@ -1,5 +1,6 @@
 package com.mytictac.gameengine
 
+import com.mytictac.data.CurrentGame
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Field
 import com.mytictac.data.FirstPLayer
@@ -7,9 +8,13 @@ import com.mytictac.data.GameEndResult
 import com.mytictac.data.Participant
 import com.mytictac.data.Player
 import com.mytictac.data.PlayerState
+import com.mytictac.data.SaveGame
 import com.mytictac.data.center
 import com.mytictac.data.corners
+import com.mytictac.data.edges
 import com.mytictac.data.gameoptions.GameOptionsService
+import com.mytictac.data.savegame.LoadGameUseCase
+import com.mytictac.data.savegame.SaveGameUseCase
 import com.mytictac.data.victories
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,19 +33,24 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
 interface GameEngine {
     val state: StateFlow<CurrentGame>
     val gameEvent: Flow<GameEvent>
     fun onFieldSelected(id: Int, computerMove: Boolean)
     fun setDefault()
+    suspend fun saveGame(): Result<Unit>
+    suspend fun loadGame()
 }
 
 class AndroidGameEngine(
     gameOptionsService: GameOptionsService,
+    private val saveGameUseCase: SaveGameUseCase,
+    private val loadGameUseCase: LoadGameUseCase,
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) : GameEngine {
 
-    private val options = gameOptionsService.gameOptions.value
+    private var options = gameOptionsService.gameOptions.value
 
     private val isGameRunning = MutableStateFlow(true)
     private val currentGame = MutableStateFlow(lazy { setStartGame() }.value)
@@ -60,21 +70,26 @@ class AndroidGameEngine(
 
     init {
         if (options.singlePlayer) {
-            coroutineScope.launch {
-                initiateComputerMove.receiveAsFlow().collect {
-                    if (getAvailableFields().isNotEmpty()) {
-                        val field = chooseComputerMove()
-                        if (canMakeMove(field.id, computerMove = true)) {
-                            delay(1000)
-                            _gameEvent.emit(GameEvent.ComputerMove(field.id))
-                            onFieldSelected(field.id, computerMove = true)
-                        }
+            observeComputerMove()
+        }
+    }
 
+    private fun observeComputerMove() {
+        coroutineScope.launch {
+            initiateComputerMove.receiveAsFlow().collect {
+                if (getAvailableFields().isNotEmpty()) {
+                    val field = chooseComputerMove()
+                    if (canMakeMove(field.id, computerMove = true)) {
+                        delay(1000)
+                        _gameEvent.emit(GameEvent.ComputerMove(field.id))
+                        onFieldSelected(field.id, computerMove = true)
                     }
-                    isComputingMove = false
+
                 }
+                isComputingMove = false
             }
         }
+
     }
 
     override fun onFieldSelected(id: Int, computerMove: Boolean) {
@@ -97,13 +112,31 @@ class AndroidGameEngine(
 
     override fun setDefault() {
         if (!isComputingMove) {
-
             tappedIds.removeAll { true }
             currentGame.value = setStartGame()
             isGameRunning.value = true
             coroutineScope.launch {
                 _gameEvent.emit(GameEvent.ComputerMove(-1))
             }
+        }
+    }
+
+    override suspend fun saveGame(): Result<Unit> {
+        return saveGameUseCase.invoke(
+            SaveGame(
+                currentGame = currentGame.value,
+                options = options
+            )
+        )
+    }
+
+    override suspend fun loadGame() {
+        loadGameUseCase.invoke().onSuccess {
+            options = it.options
+            val loadedMoves = it.currentGame.cross.moves + it.currentGame.circle.moves
+            tappedIds.addAll(loadedMoves.map { field ->  field.id })
+            _gameEvent.emit(GameEvent.GameLoaded(loadedMoves))
+            currentGame.value = it.currentGame
         }
     }
 
@@ -149,24 +182,34 @@ class AndroidGameEngine(
 
         val availableFields = getAvailableFields()
 
-        val computer = when {
-            gameState.cross.player.participant == Participant.Computer -> gameState.cross
-            else -> gameState.circle
-        }
-        val human = when (computer) {
-            gameState.cross -> gameState.circle
-            else -> gameState.cross
+        val (computer, human) = if (gameState.cross.player.participant == Participant.Computer) {
+            gameState.cross to gameState.circle
+        } else {
+            gameState.circle to gameState.cross
         }
 
-        when (options.difficultyLevel) {
+        when (val lvl = options.difficultyLevel) {
             DifficultyLevel.EASY -> return availableFields.random()
-            DifficultyLevel.IMPOSSIBLE -> {
+            else -> {
+                // winning move
+                findWinningMove(computer.moves, availableFields)?.let { return it }
 
-                val winningMove = findWinningMove(computer.moves, availableFields)
-                if (winningMove != null) return winningMove
+                // blocking move
+                findWinningMove(human.moves, availableFields)?.let { return it }
 
-                val blockingMove = findWinningMove(human.moves, availableFields)
-                if (blockingMove != null) return blockingMove
+                if (lvl == DifficultyLevel.IMPOSSIBLE) {
+                    if (human.moves.size == 2 && human.moves.first() in edges && human.moves.last() in corners) {
+                        val oppositeCorner = findOppositeCorner(human.moves.last())
+                        oppositeCorner?.let {
+                            if (oppositeCorner in availableFields) return oppositeCorner
+                        }
+                    }
+
+                    if (human.moves.size == 2 && human.moves.any { it in corners }) {
+                        val safeMove = edges.firstOrNull { it in availableFields }
+                        if (safeMove != null) return safeMove
+                    }
+                }
 
                 if (center in availableFields) return center
 
@@ -178,12 +221,6 @@ class AndroidGameEngine(
         }
     }
 
-    private fun canMakeMove(id: Int, computerMove: Boolean) =
-        !tappedIds.contains(id) &&
-                isGameRunning.value &&
-                (!isComputingMove || computerMove)
-
-
     private fun findWinningMove(currentMoves: Set<Field>, availableFields: Set<Field>): Field? {
         for (victory in victories) {
             val missingFields = victory - currentMoves
@@ -193,6 +230,21 @@ class AndroidGameEngine(
         }
         return null
     }
+
+    private fun findOppositeCorner(corner: Field): Field? {
+        return when (corner) {
+            Field.One -> Field.Nine
+            Field.Three -> Field.Seven
+            Field.Seven -> Field.Three
+            Field.Nine -> Field.One
+            else -> null
+        }
+    }
+
+    private fun canMakeMove(id: Int, computerMove: Boolean) =
+        !tappedIds.contains(id) &&
+                isGameRunning.value &&
+                (!isComputingMove || computerMove)
 
     private fun setStartGame() = CurrentGame(
         currentPLayer = when (options.firstPlayer) {
@@ -267,13 +319,6 @@ class AndroidGameEngine(
     }
 }
 
-data class CurrentGame(
-    val currentPLayer: Player,
-    val cross: PlayerState,
-    val circle: PlayerState,
-    val isGameRunning: Boolean
-)
-
 sealed class GameEvent {
     data class GameEnd(
         val result: GameEndResult,
@@ -281,4 +326,6 @@ sealed class GameEvent {
     ) : GameEvent()
 
     data class ComputerMove(val fieldId: Int) : GameEvent()
+    data class GameLoaded(val fields: Set<Field>) : GameEvent()
 }
+

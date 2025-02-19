@@ -1,4 +1,4 @@
-package com.mytictac.tictacgame
+package com.mytictac.game
 
 interface GameRouter {
     fun backToMainScreen()

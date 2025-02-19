@@ -1,4 +1,4 @@
-package com.mytictac.tictacgame.compose
+package com.mytictac.game.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

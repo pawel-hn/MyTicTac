@@ -1,12 +1,18 @@
 package com.mytictac.gameengine
 
+import com.mytictac.data.CurrentGame
 import com.mytictac.data.Field
 import com.mytictac.data.GameEndResult
 import com.mytictac.data.Participant
 import com.mytictac.data.Player
+import com.mytictac.data.PlayerState
+import com.mytictac.data.SaveGame
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.gameoptions.defaultGameOptions
+import com.mytictac.data.savegame.LoadGameUseCase
+import com.mytictac.data.savegame.SaveGameUseCase
 import com.mytictac.data.victories
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +39,8 @@ class GameEngineShould {
     private lateinit var sut: GameEngine
 
     private val mockGameOptionsService: GameOptionsService = mockk()
+    private val mockSaveGameUseCase: SaveGameUseCase = mockk()
+    private val mockLoadGameUseCase: LoadGameUseCase = mockk()
     private val gameOptionsFlow = MutableStateFlow(defaultGameOptions)
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(testDispatcher)
@@ -52,7 +60,12 @@ class GameEngineShould {
     fun `initial game state is correct`() = runTest {
         // given
         every { mockGameOptionsService.gameOptions }.returns(gameOptionsFlow)
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
         val initialState = sut.state.first()
 
         // then
@@ -66,7 +79,12 @@ class GameEngineShould {
     fun `onFieldSelected should trigger computer move on singlePLayer`() = runTest {
         // given
         every { mockGameOptionsService.gameOptions }.returns(gameOptionsFlow)
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
 
         val events = mutableListOf<GameEvent>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -92,7 +110,12 @@ class GameEngineShould {
     fun `onFieldSelected should not allow duplicate moves`() = runTest {
         // given
         every { mockGameOptionsService.gameOptions }.returns(gameOptionsFlow)
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
 
         // When
         sut.onFieldSelected(fieldId, computerMove = false)
@@ -110,7 +133,12 @@ class GameEngineShould {
     fun `setDefault should reset game state`() = runTest {
         // given
         every { mockGameOptionsService.gameOptions }.returns(gameOptionsFlow)
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
 
         // Given
         sut.onFieldSelected(fieldId, computerMove = false)
@@ -132,7 +160,12 @@ class GameEngineShould {
         every { mockGameOptionsService.gameOptions } returns
                 MutableStateFlow(defaultGameOptions.copy(singlePlayer = false))
 
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
 
         val events = mutableListOf<GameEvent>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -172,7 +205,12 @@ class GameEngineShould {
         every { mockGameOptionsService.gameOptions } returns
                 MutableStateFlow(defaultGameOptions.copy(singlePlayer = false))
 
-        sut = AndroidGameEngine(mockGameOptionsService, testScope)
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
         val allFields = Field.entries.map { it }
 
         val events = mutableListOf<GameEvent>()
@@ -203,6 +241,57 @@ class GameEngineShould {
             ),
             events.first()
         )
+
+        job.cancel()
+    }
+
+    @Test
+    fun `load game should emit saved game`() = runTest {
+        // Given
+        every { mockGameOptionsService.gameOptions } returns
+                MutableStateFlow(defaultGameOptions.copy(singlePlayer = false))
+
+        val currentGame = CurrentGame(
+            currentPLayer = Player.Circle(participant = Participant.Human),
+            cross = PlayerState(
+                player = Player.Cross(participant = Participant.Computer),
+                moves = setOf(Field.One, Field.Seven)
+            ),
+            circle = PlayerState(
+                player = Player.Circle(participant = Participant.Human),
+                moves = setOf(Field.Two, Field.Four)
+            ),
+            isGameRunning = true
+        )
+
+        coEvery { mockLoadGameUseCase.invoke() } returns Result.success(
+            SaveGame(currentGame, defaultGameOptions)
+        )
+
+        sut = AndroidGameEngine(
+            gameOptionsService = mockGameOptionsService,
+            saveGameUseCase = mockSaveGameUseCase,
+            loadGameUseCase = mockLoadGameUseCase,
+            coroutineScope = testScope
+        )
+
+        val events = mutableListOf<GameEvent>()
+        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            sut.gameEvent.toList(events)
+        }
+
+        // when
+        sut.loadGame()
+
+        // then
+        assertEquals(1, events.size)
+        assertEquals(
+            GameEvent.GameLoaded(
+               fields = currentGame.circle.moves + currentGame.cross.moves
+            ),
+            events.first()
+        )
+        assertEquals(currentGame, sut.state.first())
 
         job.cancel()
     }

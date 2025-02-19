@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.hilt)
+    alias(libs.plugins.kotlin.serialization)
     kotlin("kapt")
 }
 
@@ -52,9 +53,12 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.google.hilt.navigation.compose)
+    implementation(libs.androidx.datastore)
+    implementation(libs.kotlin.serialization.json)
 
     // Hilt
     implementation(libs.google.hilt.android)
+    implementation(libs.androidx.ui.test.junit4.android)
     kapt(libs.google.hilt.android.compiler)
 
     testImplementation(libs.junit)

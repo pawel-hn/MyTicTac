@@ -7,13 +7,15 @@ import com.mytictac.data.DifficultyLevel
 data class StartScreenUIState(
     val singlePLayer: Boolean,
     val startScreenFirstPlayerUI: StartScreenFirstPlayerUI,
-    val difficultyLevel: DifficultyLevel
+    val difficultyLevel: DifficultyLevel,
+    val loadGameButtonEnabled: Boolean
 )
 
 val defaultStartScreenUIState = StartScreenUIState(
     singlePLayer = true,
     startScreenFirstPlayerUI = StartScreenFirstPlayerUI.Circle,
-    difficultyLevel = DifficultyLevel.EASY
+    difficultyLevel = DifficultyLevel.EASY,
+    loadGameButtonEnabled = false
 )
 
 enum class StartScreenFirstPlayerUI(val label: Int, short: Char) {

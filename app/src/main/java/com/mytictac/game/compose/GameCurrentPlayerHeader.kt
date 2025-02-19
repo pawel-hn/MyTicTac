@@ -1,4 +1,4 @@
-package com.mytictac.tictacgame.compose
+package com.mytictac.game.compose
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytictac.data.Player
-import com.mytictac.tictacgame.GameUIState
+import com.mytictac.game.GameUIState
 import com.mytictac.ui.theme.MyTicTacTheme
 
 @Composable
