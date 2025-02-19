@@ -1,5 +1,6 @@
 package com.mytictac.gameengine
 
+import com.mytictac.data.CurrentGame
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Field
 import com.mytictac.data.FirstPLayer
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
 
 interface GameEngine {
     val state: StateFlow<CurrentGame>
@@ -266,13 +268,6 @@ class AndroidGameEngine(
         }
     }
 }
-
-data class CurrentGame(
-    val currentPLayer: Player,
-    val cross: PlayerState,
-    val circle: PlayerState,
-    val isGameRunning: Boolean
-)
 
 sealed class GameEvent {
     data class GameEnd(

@@ -1,5 +1,8 @@
 package com.mytictac.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class Field(val id: Int) {
     One(11),
     Two(12),

@@ -1,8 +1,11 @@
 package com.mytictac.tictacgame
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mytictac.data.CurrentGame
 import com.mytictac.data.GameEndResult
+import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.gameengine.GameEngine
 import com.mytictac.gameengine.GameEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,11 +16,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import javax.inject.Inject
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
-    private val gameEngine: GameEngine
+    private val gameEngine: GameEngine,
+
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<GameUIState>(GameUIState.Loading)
@@ -80,6 +88,14 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch {
             _event.emit(GameUIEvents.ResetGame)
         }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    fun saveGame() {
+        val json = Json { encodeDefaults = true }
+
+        val game = json.encodeToString(CurrentGame::class.serializer(), gameEngine.state.value)
+        Log.d("PHN", "saveGame: $game")
 
     }
 

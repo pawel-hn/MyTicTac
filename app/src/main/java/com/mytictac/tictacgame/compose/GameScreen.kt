@@ -7,9 +7,11 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -119,17 +121,32 @@ fun TicTacScreen(
                     )
                 }
 
-                TicTacButton(
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.padding(Padding.large),
-                    width = 120.dp,
-                    height = 40.dp,
-                    textSize = 12.sp,
-                    enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
-                    enabledSecondaryColor = MyTicTacTheme.colours.interactiveTertiaryContent,
-                    text = "Reset",
-                    isSelected = true,
-                    onClick = viewModel::reset
-                )
+                ) {
+                    TicTacButton(
+                        width = 120.dp,
+                        height = 40.dp,
+                        textSize = 12.sp,
+                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
+                        enabledSecondaryColor = MyTicTacTheme.colours.interactiveTertiaryContent,
+                        text = "Reset",
+                        isSelected = true,
+                        onClick = viewModel::reset
+                    )
+                    TicTacButton(
+                        width = 120.dp,
+                        height = 40.dp,
+                        textSize = 12.sp,
+                        enabledPrimaryColor = MyTicTacTheme.colours.interactiveSecondary,
+                        enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
+                        text = "Save Game",
+                        isSelected = true,
+                        onClick = viewModel::saveGame
+                    )
+                }
+
             }
         }
     }
