@@ -13,7 +13,6 @@ import com.mytictac.data.center
 import com.mytictac.data.corners
 import com.mytictac.data.edges
 import com.mytictac.data.gameoptions.GameOptionsService
-import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.data.savegame.LoadGameUseCase
 import com.mytictac.data.savegame.SaveGameUseCase
 import com.mytictac.data.victories

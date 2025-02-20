@@ -1,6 +1,6 @@
 package com.mytictac.tictacgame
 
-import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytictac.data.GameEndResult
@@ -16,10 +16,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+object GameViewModelArguments {
+    const val LOAD_GAME = "loadGame"
+}
+
 @HiltViewModel
 class GameViewModel @Inject constructor(
     private val gameEngine: GameEngine,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val loadGame: Boolean = savedStateHandle[GameViewModelArguments.LOAD_GAME] ?: false
 
     private val _state = MutableStateFlow<GameUIState>(GameUIState.Loading)
     val state: StateFlow<GameUIState> = _state.asStateFlow()

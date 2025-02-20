@@ -76,7 +76,9 @@ class StartScreenViewModel @Inject constructor(
     }
 
     fun onLoadGameClick() {
-        Log.d("PHN", "load clicked")
+        viewModelScope.launch {
+            _startScreenEvent.send(StartScreenUIEvent.LoadGame)
+        }
     }
 
     private fun getSavedGame() {

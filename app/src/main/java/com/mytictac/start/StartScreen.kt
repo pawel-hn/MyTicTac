@@ -32,7 +32,6 @@ import com.mytictac.data.DifficultyLevel
 import com.mytictac.ui.components.TicTacButton
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
-import kotlin.math.truncate
 
 @Composable
 fun StartScreen(
@@ -43,6 +42,7 @@ fun StartScreen(
         viewModel.startScreenEvent.collect {
             when (it) {
                 StartScreenUIEvent.StartGame -> router.onStartGame()
+                StartScreenUIEvent.LoadGame -> router.onLoadGame()
             }
         }
     }
@@ -118,11 +118,11 @@ fun StartScreen(
             val loadButtonColor by animateColorAsState(
                 targetValue = if (state.loadGameButtonEnabled)
                     MyTicTacTheme.colours.interactiveSecondary else
-                        Color.DarkGray,
-                animationSpec = tween(300,500),
+                    Color.DarkGray,
+                animationSpec = tween(300, 500),
                 label = "",
 
-            )
+                )
             TicTacButton(
                 width = width / 2F,
                 height = 50.dp,
