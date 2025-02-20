@@ -133,13 +133,10 @@ class AndroidGameEngine(
     override suspend fun loadGame() {
         loadGameUseCase.invoke().onSuccess {
             options = it.options
-
             val loadedMoves = it.currentGame.cross.moves + it.currentGame.circle.moves
-
             tappedIds.addAll(loadedMoves.map { field ->  field.id })
             _gameEvent.emit(GameEvent.GameLoaded(loadedMoves))
             currentGame.value = it.currentGame
-
         }
     }
 

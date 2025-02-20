@@ -1,5 +1,6 @@
 package com.mytictac.tictacgame
 
+import androidx.lifecycle.SavedStateHandle
 import com.mytictac.data.CurrentGame
 import com.mytictac.data.Field
 import com.mytictac.data.GameEndResult
@@ -9,6 +10,7 @@ import com.mytictac.data.PlayerState
 import com.mytictac.data.victories
 import com.mytictac.gameengine.GameEngine
 import com.mytictac.gameengine.GameEvent
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +38,9 @@ class GameViewModelShould {
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(testDispatcher)
 
+    private val defaultSavedStateHandle =
+        SavedStateHandle(mapOf(GameViewModelArguments.LOAD_GAME to false))
+
     private val gameState = CurrentGame(
         currentPLayer = Player.Cross(Participant.Human),
         cross = PlayerState(Player.Cross(Participant.Human), emptySet()),
@@ -60,7 +65,7 @@ class GameViewModelShould {
     fun `should emit correct UI state when gameEngine state changes`() = runTest {
         // given
         every { gameEngine.state } returns gameStateFlow
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
 
         // then
@@ -80,7 +85,7 @@ class GameViewModelShould {
         every { gameEngine.gameEvent } returns gameEventFlow
         every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
         val events = mutableListOf<GameUIEvents>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -103,7 +108,7 @@ class GameViewModelShould {
         every { gameEngine.gameEvent } returns gameEventFlow
         every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
         val events = mutableListOf<GameUIEvents>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -126,7 +131,7 @@ class GameViewModelShould {
         every { gameEngine.gameEvent } returns gameEventFlow
         every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
         val events = mutableListOf<GameUIEvents>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -148,7 +153,7 @@ class GameViewModelShould {
         every { gameEngine.gameEvent } returns gameEventFlow
         every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
         val events = mutableListOf<GameUIEvents>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -172,7 +177,7 @@ class GameViewModelShould {
             every { gameEngine.gameEvent } returns gameEventFlow
             every { gameEngine.state } returns gameStateFlow
 
-            sut = GameViewModel(gameEngine)
+            sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
             val events = mutableListOf<GameUIEvents>()
             val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -196,7 +201,7 @@ class GameViewModelShould {
         every { gameEngine.gameEvent } returns gameEventFlow
         every { gameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(gameEngine)
+        sut = GameViewModel(gameEngine, defaultSavedStateHandle)
 
         val events = mutableListOf<GameUIEvents>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -208,6 +213,34 @@ class GameViewModelShould {
 
         // then
         assertEquals(GameUIEvents.ResetGame, events.first())
+        assertEquals(1, events.size)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `should load game when loadGame is true`() = runTest {
+        // given
+        val loadedFields = setOf(Field.One, Field.Five, Field.Six)
+        every { gameEngine.gameEvent } returns gameEventFlow
+        every { gameEngine.state } returns gameStateFlow
+
+        val savedStateHandleLoadGame =
+            SavedStateHandle(mapOf(GameViewModelArguments.LOAD_GAME to true))
+
+        sut = GameViewModel(gameEngine, savedStateHandleLoadGame)
+
+        val events = mutableListOf<GameUIEvents>()
+        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            sut.event.toList(events)
+        }
+
+        // when
+        gameEventFlow.emit(GameEvent.GameLoaded(loadedFields))
+
+        // then
+        coVerify(exactly = 1) { gameEngine.loadGame() }
+        assertEquals(GameUIEvents.GameLoaded(loadedFields), events.first())
         assertEquals(1, events.size)
 
         job.cancel()
