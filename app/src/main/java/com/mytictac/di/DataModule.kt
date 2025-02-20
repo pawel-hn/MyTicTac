@@ -5,8 +5,12 @@ import com.mytictac.data.gameoptions.AndroidGameOptionsService
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.savegame.AndroidDataStoreManager
 import com.mytictac.data.savegame.AndroidIsSavedGameUseCase
+import com.mytictac.data.savegame.AndroidLoadGameUseCase
+import com.mytictac.data.savegame.AndroidSaveGameUseCase
 import com.mytictac.data.savegame.DataStoreManager
 import com.mytictac.data.savegame.IsSavedGameUseCase
+import com.mytictac.data.savegame.LoadGameUseCase
+import com.mytictac.data.savegame.SaveGameUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,6 +33,19 @@ object DataModule {
     fun provideDataStoreManager(
         @ApplicationContext appContext: Context,
     ): DataStoreManager = AndroidDataStoreManager(appContext)
+
+    @Provides
+    @Singleton
+    fun provideSaveGameUseCase(
+        dataStoreManager: DataStoreManager
+    ): SaveGameUseCase = AndroidSaveGameUseCase(dataStoreManager)
+
+    @Provides
+    @Singleton
+    fun provideLoadGameUseCase(
+        dataStoreManager: DataStoreManager
+    ): LoadGameUseCase = AndroidLoadGameUseCase(dataStoreManager)
+
 }
 
 @Module

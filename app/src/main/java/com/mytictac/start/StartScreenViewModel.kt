@@ -10,9 +10,10 @@ import com.mytictac.data.savegame.IsSavedGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,21 +28,27 @@ class StartScreenViewModel @Inject constructor(
 
     private val _startScreenEvent = Channel<StartScreenUIEvent>()
     val startScreenEvent: Flow<StartScreenUIEvent> = _startScreenEvent.receiveAsFlow()
+    private val loadButtonEnabled = MutableStateFlow(false)
 
-    val state: StateFlow<StartScreenUIState> = gameOptionsService.gameOptions.map {
-        StartScreenUIState(
-            singlePLayer = it.singlePlayer,
-            startScreenFirstPlayerUI = when(it.firstPlayer) {
-                FirstPLayer.Circle -> StartScreenFirstPlayerUI.Circle
-                FirstPLayer.Cross -> StartScreenFirstPlayerUI.Cross
-            },
-            difficultyLevel = it.difficultyLevel
+    val state: StateFlow<StartScreenUIState> =
+        combine(
+            gameOptionsService.gameOptions,
+            loadButtonEnabled
+        ) { options, loadButton ->
+            StartScreenUIState(
+                singlePLayer = options.singlePlayer,
+                startScreenFirstPlayerUI = when (options.firstPlayer) {
+                    FirstPLayer.Circle -> StartScreenFirstPlayerUI.Circle
+                    FirstPLayer.Cross -> StartScreenFirstPlayerUI.Cross
+                },
+                difficultyLevel = options.difficultyLevel,
+                loadGameButtonEnabled = loadButton
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(500),
+            defaultStartScreenUIState
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(500),
-        defaultStartScreenUIState
-    )
 
     init {
         getSavedGame()
@@ -55,21 +62,26 @@ class StartScreenViewModel @Inject constructor(
 
     fun onFirstPlayerChanged(player: StartScreenFirstPlayerUI) =
 
-        gameOptionsService.onFirstPlayerChanged( when(player) {
-            StartScreenFirstPlayerUI.Circle -> FirstPLayer.Circle
-            StartScreenFirstPlayerUI.Cross -> FirstPLayer.Cross
-        })
+        gameOptionsService.onFirstPlayerChanged(
+            when (player) {
+                StartScreenFirstPlayerUI.Circle -> FirstPLayer.Circle
+                StartScreenFirstPlayerUI.Cross -> FirstPLayer.Cross
+            }
+        )
 
-    fun onStartGame() {
+    fun onStartGameClick() {
         viewModelScope.launch {
             _startScreenEvent.send(StartScreenUIEvent.StartGame)
         }
     }
 
+    fun onLoadGameClick() {
+        Log.d("PHN", "load clicked")
+    }
+
     private fun getSavedGame() {
         viewModelScope.launch {
-            val isSavedGame = isSavedGameUseCase.invoke()
-            Log.d("PHN", "getSavedGame: $isSavedGame")
+            loadButtonEnabled.value = isSavedGameUseCase.invoke()
         }
     }
 }

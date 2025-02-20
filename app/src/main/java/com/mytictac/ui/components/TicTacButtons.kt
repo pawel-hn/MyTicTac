@@ -46,6 +46,7 @@ fun TicTacButton(
     textSize: TextUnit = 20.sp,
     text: String,
     isSelected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
 
@@ -83,10 +84,14 @@ fun TicTacButton(
         )
         Button(
             onClick = onClick,
+            enabled = enabled,
             modifier = Modifier
                 .height(height)
                 .width(width),
-            colors = ButtonDefaults.buttonColors(containerColor = animatePrimaryColor.value),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = animatePrimaryColor.value,
+                disabledContainerColor = Color.DarkGray,
+            ),
             shape = shape,
             border = BorderStroke(width = 1.dp, color = animateSecondaryColor.value),
         ) {

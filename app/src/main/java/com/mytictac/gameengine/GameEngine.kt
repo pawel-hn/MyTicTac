@@ -1,6 +1,5 @@
 package com.mytictac.gameengine
 
-import android.util.Log
 import com.mytictac.data.CurrentGame
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.data.Field
@@ -9,11 +8,14 @@ import com.mytictac.data.GameEndResult
 import com.mytictac.data.Participant
 import com.mytictac.data.Player
 import com.mytictac.data.PlayerState
+import com.mytictac.data.SaveGame
 import com.mytictac.data.center
 import com.mytictac.data.corners
 import com.mytictac.data.edges
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.savegame.DataStoreManager
+import com.mytictac.data.savegame.LoadGameUseCase
+import com.mytictac.data.savegame.SaveGameUseCase
 import com.mytictac.data.victories
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +33,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 
 interface GameEngine {
@@ -40,12 +41,13 @@ interface GameEngine {
     fun onFieldSelected(id: Int, computerMove: Boolean)
     fun setDefault()
     suspend fun saveGame(): Result<Unit>
+    suspend fun loadGame(): Result<SaveGame>
 }
 
 class AndroidGameEngine(
     gameOptionsService: GameOptionsService,
-    private val dataStoreManager: DataStoreManager,
-    private val json: Json = Json,
+    private val saveGameUseCase: SaveGameUseCase,
+    private val loadGameUseCase: LoadGameUseCase,
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) : GameEngine {
 
@@ -69,21 +71,26 @@ class AndroidGameEngine(
 
     init {
         if (options.singlePlayer) {
-            coroutineScope.launch {
-                initiateComputerMove.receiveAsFlow().collect {
-                    if (getAvailableFields().isNotEmpty()) {
-                        val field = chooseComputerMove()
-                        if (canMakeMove(field.id, computerMove = true)) {
-                            delay(1000)
-                            _gameEvent.emit(GameEvent.ComputerMove(field.id))
-                            onFieldSelected(field.id, computerMove = true)
-                        }
+            observeComputerMove()
+        }
+    }
 
+    private fun observeComputerMove() {
+        coroutineScope.launch {
+            initiateComputerMove.receiveAsFlow().collect {
+                if (getAvailableFields().isNotEmpty()) {
+                    val field = chooseComputerMove()
+                    if (canMakeMove(field.id, computerMove = true)) {
+                        delay(1000)
+                        _gameEvent.emit(GameEvent.ComputerMove(field.id))
+                        onFieldSelected(field.id, computerMove = true)
                     }
-                    isComputingMove = false
+
                 }
+                isComputingMove = false
             }
         }
+
     }
 
     override fun onFieldSelected(id: Int, computerMove: Boolean) {
@@ -117,17 +124,16 @@ class AndroidGameEngine(
     }
 
     override suspend fun saveGame(): Result<Unit> {
-        return try {
-            Log.d("PHN", "gameEngine: ${Thread.currentThread()}")
-            val data = json.encodeToString(CurrentGame.serializer(), currentGame.value)
-            dataStoreManager.store(
-                preferenceKey = DataStoreManager.PreferenceKey.SAVED_GAME,
-                value = data
+        return saveGameUseCase.invoke(
+            SaveGame(
+                currentGame = currentGame.value,
+                options = options
             )
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(Exception("Game not saved."))
-        }
+        )
+    }
+
+    override suspend fun loadGame(): Result<SaveGame> {
+        return Result.failure(Exception("xxx"))
     }
 
     private fun makeMove(currentGame: CurrentGame, id: Int): CurrentGame {
@@ -182,7 +188,7 @@ class AndroidGameEngine(
             DifficultyLevel.EASY -> return availableFields.random()
             else -> {
                 // winning move
-               findWinningMove(computer.moves, availableFields)?.let { return it }
+                findWinningMove(computer.moves, availableFields)?.let { return it }
 
                 // blocking move
                 findWinningMove(human.moves, availableFields)?.let { return it }
@@ -317,3 +323,4 @@ sealed class GameEvent {
 
     data class ComputerMove(val fieldId: Int) : GameEvent()
 }
+

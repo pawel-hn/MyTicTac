@@ -2,6 +2,8 @@ package com.mytictac.start
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -19,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -29,6 +32,7 @@ import com.mytictac.data.DifficultyLevel
 import com.mytictac.ui.components.TicTacButton
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
+import kotlin.math.truncate
 
 @Composable
 fun StartScreen(
@@ -96,16 +100,40 @@ fun StartScreen(
             )
         }
 
-        TicTacButton(
+        Column(
             modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = Padding.extraExtraLarge),
-            width = width / 2F,
-            text = "Start",
-            onClick = viewModel::onStartGame,
-            isSelected = true,
-            enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
-            enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
-        )
+            verticalArrangement = Arrangement.spacedBy(Padding.medium)
+        ) {
+            TicTacButton(
+                width = width / 2F,
+                height = 50.dp,
+                text = "Start",
+                onClick = viewModel::onStartGameClick,
+                isSelected = true,
+                enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
+                enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
+            )
+
+            val loadButtonColor by animateColorAsState(
+                targetValue = if (state.loadGameButtonEnabled)
+                    MyTicTacTheme.colours.interactiveSecondary else
+                        Color.DarkGray,
+                animationSpec = tween(300,500),
+                label = "",
+
+            )
+            TicTacButton(
+                width = width / 2F,
+                height = 50.dp,
+                text = "Load",
+                onClick = viewModel::onLoadGameClick,
+                isSelected = true,
+                enabled = state.loadGameButtonEnabled,
+                enabledPrimaryColor = loadButtonColor,
+                enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
+            )
+        }
     }
 }
 
