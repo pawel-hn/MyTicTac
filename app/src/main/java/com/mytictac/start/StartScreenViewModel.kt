@@ -1,6 +1,8 @@
 package com.mytictac.start
 
 import android.util.Log
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytictac.data.DifficultyLevel
@@ -24,7 +26,7 @@ import javax.inject.Inject
 class StartScreenViewModel @Inject constructor(
     private val gameOptionsService: GameOptionsService,
     private val isSavedGameUseCase: IsSavedGameUseCase
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val _startScreenEvent = Channel<StartScreenUIEvent>()
     val startScreenEvent: Flow<StartScreenUIEvent> = _startScreenEvent.receiveAsFlow()
@@ -85,5 +87,10 @@ class StartScreenViewModel @Inject constructor(
         viewModelScope.launch {
             loadButtonEnabled.value = isSavedGameUseCase.invoke()
         }
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        getSavedGame()
     }
 }

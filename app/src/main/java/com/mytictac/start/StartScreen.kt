@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +28,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mytictac.data.DifficultyLevel
 import com.mytictac.ui.components.TicTacButton
@@ -36,8 +39,17 @@ import com.mytictac.ui.theme.Padding
 @Composable
 fun StartScreen(
     viewModel: StartScreenViewModel,
-    router: StartRouter
+    router: StartRouter,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
 ) {
+    DisposableEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(viewModel)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(viewModel)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.startScreenEvent.collect {
             when (it) {

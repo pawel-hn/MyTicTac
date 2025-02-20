@@ -57,10 +57,19 @@ class GameViewModel @Inject constructor(
                             _event.emit(GameUIEvents.VictoryLine(it.winningSet))
                         }
                     }
+
+                    is GameEvent.GameLoaded -> {
+                        _event.emit(GameUIEvents.GameLoaded(it.fields))
+                    }
                 }
             }
         }
+
+        if (loadGame) {
+            viewModelScope.launch { gameEngine.loadGame() }
+        }
     }
+
 
     fun onGestureBack() {
         if (isGameRunning()) {
@@ -90,7 +99,6 @@ class GameViewModel @Inject constructor(
         }
     }
 
-
     fun saveGame() {
         if (isGameRunning()) {
             viewModelScope.launch {
@@ -102,7 +110,6 @@ class GameViewModel @Inject constructor(
                 }
             }
         }
-
     }
 
     fun setDefault() {

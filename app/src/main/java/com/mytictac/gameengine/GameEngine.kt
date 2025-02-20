@@ -40,7 +40,7 @@ interface GameEngine {
     fun onFieldSelected(id: Int, computerMove: Boolean)
     fun setDefault()
     suspend fun saveGame(): Result<Unit>
-    suspend fun loadGame(): Result<SaveGame>
+    suspend fun loadGame()
 }
 
 class AndroidGameEngine(
@@ -50,7 +50,7 @@ class AndroidGameEngine(
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) : GameEngine {
 
-    private val options = gameOptionsService.gameOptions.value
+    private var options = gameOptionsService.gameOptions.value
 
     private val isGameRunning = MutableStateFlow(true)
     private val currentGame = MutableStateFlow(lazy { setStartGame() }.value)
@@ -112,7 +112,6 @@ class AndroidGameEngine(
 
     override fun setDefault() {
         if (!isComputingMove) {
-
             tappedIds.removeAll { true }
             currentGame.value = setStartGame()
             isGameRunning.value = true
@@ -131,8 +130,17 @@ class AndroidGameEngine(
         )
     }
 
-    override suspend fun loadGame(): Result<SaveGame> {
-        return Result.failure(Exception("xxx"))
+    override suspend fun loadGame() {
+        loadGameUseCase.invoke().onSuccess {
+            options = it.options
+
+            val loadedMoves = it.currentGame.cross.moves + it.currentGame.circle.moves
+
+            tappedIds.addAll(loadedMoves.map { field ->  field.id })
+            _gameEvent.emit(GameEvent.GameLoaded(loadedMoves))
+            currentGame.value = it.currentGame
+
+        }
     }
 
     private fun makeMove(currentGame: CurrentGame, id: Int): CurrentGame {
@@ -321,5 +329,6 @@ sealed class GameEvent {
     ) : GameEvent()
 
     data class ComputerMove(val fieldId: Int) : GameEvent()
+    data class GameLoaded(val fields: Set<Field>) : GameEvent()
 }
 

@@ -82,6 +82,10 @@ fun TicTacScreen(
                     animationEvent.value = AnimationEvent.AnimateWinningLine(it.winningFields)
                 }
 
+                is GameUIEvents.GameLoaded -> {
+                    animationEvent.value = AnimationEvent.GameLoaded(it.fields)
+                }
+
                 is GameUIEvents.ShowToast -> {
                     Toast.makeText(context, it.toast.message, Toast.LENGTH_SHORT).show()
                 }
@@ -206,6 +210,12 @@ fun TicTacToeField(
                 }
             }
 
+            is AnimationEvent.GameLoaded -> {
+                animationEvent.fields.forEach { field ->
+                    animateFloatToOne(animations[getAnimationIndex(field.id)])
+                }
+            }
+
             else -> Unit
         }
     }
@@ -290,6 +300,7 @@ fun getAnimationIndex(id: Int) = animationIndexMap[id] ?: -1
 
 
 sealed interface AnimationEvent {
+    data class GameLoaded(val fields: Set<Field>) : AnimationEvent
     data object ResetAnimations : AnimationEvent
     data class AnimateWinningLine(val winningFields: Set<Field>) : AnimationEvent
     data class AnimateComputerMove(val fieldId: Int) : AnimationEvent
