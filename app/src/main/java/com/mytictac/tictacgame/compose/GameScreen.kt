@@ -44,7 +44,6 @@ import com.mytictac.ui.debouncedFieldClick
 import com.mytictac.ui.theme.MyTicTacTheme
 import com.mytictac.ui.theme.Padding
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 const val STANDARD_ANIMATION_DURATION = 500
@@ -60,7 +59,7 @@ fun TicTacScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.event.collectLatest {
+        viewModel.event.collect {
             when (it) {
                 is GameUIEvents.ShowDialog -> {
                     gameDialog.value = it.dialog
