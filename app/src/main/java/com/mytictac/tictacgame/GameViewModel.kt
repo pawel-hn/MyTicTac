@@ -31,7 +31,7 @@ class GameViewModel @Inject constructor(
     private val _state = MutableStateFlow<GameUIState>(GameUIState.Loading)
     val state: StateFlow<GameUIState> = _state.asStateFlow()
 
-    private val _event = MutableSharedFlow<GameUIEvents>()
+    private val _event = MutableSharedFlow<GameUIEvents>(replay = 1)
     val event: SharedFlow<GameUIEvents> = _event.asSharedFlow()
 
     init {
