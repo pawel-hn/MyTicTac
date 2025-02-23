@@ -204,7 +204,10 @@ class AndroidGameEngine(
                 findWinningMove(human.moves, availableFields)?.let { return it }
 
                 if (lvl == DifficultyLevel.IMPOSSIBLE) {
-                    if (human.moves.size == 2 && human.moves.first() in edges && human.moves.last() in corners) {
+                    if (human.moves.size == 2 &&
+                        human.moves.first() in edges &&
+                        human.moves.last() in corners
+                    ) {
                         val oppositeCorner = findOppositeCorner(human.moves.last())
                         oppositeCorner?.let {
                             if (oppositeCorner in availableFields) return oppositeCorner
@@ -265,7 +268,11 @@ class AndroidGameEngine(
     private fun setCurrentPlayer(player: Player, isSinglePlayer: Boolean): Player {
         val nextParticipant =
             if (isSinglePlayer) {
-                if (player.participant == Participant.Computer) Participant.Human else Participant.Computer
+                if (player.participant == Participant.Computer) {
+                    Participant.Human
+                } else {
+                    Participant.Computer
+                }
             } else {
                 Participant.Human
             }

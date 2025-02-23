@@ -3,7 +3,9 @@ package com.mytictac.game
 import androidx.compose.ui.geometry.Offset
 import com.mytictac.data.Field
 import com.mytictac.game.compose.FieldCoordinatesController
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class FieldCoordinatesControllerTest {
