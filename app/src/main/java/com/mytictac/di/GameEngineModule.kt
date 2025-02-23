@@ -14,12 +14,11 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object GameEngineModule {
-
     @ViewModelScoped
     @Provides
     fun provideGameEngine(
         gameOptionsService: GameOptionsService,
         saveGameUseCase: SaveGameUseCase,
         loadGameUseCase: LoadGameUseCase
-        ): GameEngine = AndroidGameEngine(gameOptionsService, saveGameUseCase, loadGameUseCase)
+    ): GameEngine = AndroidGameEngine(gameOptionsService, saveGameUseCase, loadGameUseCase)
 }

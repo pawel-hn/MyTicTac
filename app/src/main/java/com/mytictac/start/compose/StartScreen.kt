@@ -35,7 +35,7 @@ import com.mytictac.ui.theme.Padding
 fun StartScreen(
     viewModel: StartScreenViewModel,
     router: StartRouter,
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     DisposableEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(viewModel)
@@ -57,17 +57,19 @@ fun StartScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     BoxWithConstraints(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
-            .padding(Padding.medium),
+            .padding(Padding.medium)
     ) {
         val height = maxHeight
         val width = maxWidth
 
         Text(
             modifier = Modifier.align(Alignment.TopCenter),
-            text = "T I C T A C T O E", fontSize = 24.sp,
-            color = MyTicTacTheme.colours.contentPrimary,
+            text = "T I C T A C T O E",
+            fontSize = 24.sp,
+            color = MyTicTacTheme.colours.contentPrimary
         )
 
         Column(
@@ -76,7 +78,8 @@ fun StartScreen(
         ) {
             Text(text = "Liczba graczy:", color = MyTicTacTheme.colours.contentPrimary)
             Row(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(vertical = Padding.large),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -91,7 +94,7 @@ fun StartScreen(
                             viewModel.onPlayerCountChanged(it == 0)
                         },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveSecondary,
-                        enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
+                        enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent
                     )
                 }
             }
@@ -108,7 +111,8 @@ fun StartScreen(
         }
 
         Column(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier =
+            Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = Padding.extraExtraLarge),
             verticalArrangement = Arrangement.spacedBy(Padding.medium)
         ) {
@@ -119,17 +123,19 @@ fun StartScreen(
                 onClick = viewModel::onStartGameClick,
                 isSelected = true,
                 enabledPrimaryColor = MyTicTacTheme.colours.interactivePrimary,
-                enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent,
+                enabledSecondaryColor = MyTicTacTheme.colours.interactivePrimaryContent
             )
 
             val loadButtonColor by animateColorAsState(
-                targetValue = if (state.loadGameButtonEnabled)
-                    MyTicTacTheme.colours.interactiveSecondary else
-                    Color.DarkGray,
+                targetValue =
+                if (state.loadGameButtonEnabled) {
+                    MyTicTacTheme.colours.interactiveSecondary
+                } else {
+                    Color.DarkGray
+                },
                 animationSpec = tween(300, 500),
-                label = "",
-
-                )
+                label = ""
+            )
             TicTacButton(
                 width = width / 2F,
                 height = 50.dp,
@@ -138,7 +144,7 @@ fun StartScreen(
                 isSelected = true,
                 enabled = state.loadGameButtonEnabled,
                 enabledPrimaryColor = loadButtonColor,
-                enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent,
+                enabledSecondaryColor = MyTicTacTheme.colours.interactiveSecondaryContent
             )
         }
     }

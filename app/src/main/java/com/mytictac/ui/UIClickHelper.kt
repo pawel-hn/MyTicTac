@@ -20,8 +20,8 @@ class UIClickHelper(
     private val currentTimeProvider: () -> Long = { System.currentTimeMillis() },
     private val minimumClickInterval: MinimumClickInterval = MinimumClickInterval.DefaultInterval
 ) {
-
     private var lastEventTimeMs: AtomicLong = AtomicLong(0)
+
     fun debounceWithoutDelay(lifecycle: Lifecycle, event: () -> Unit) {
         synchronized(this) {
             val now = currentTimeProvider()
@@ -40,24 +40,22 @@ fun rememberUIClickHelper(
     currentTimeProvider: () -> Long = { System.currentTimeMillis() },
     minimumClickInterval: MinimumClickInterval = MinimumClickInterval.DefaultInterval
 ): UIClickHelper = remember {
-        UIClickHelper(
-            currentTimeProvider = currentTimeProvider,
-            minimumClickInterval = minimumClickInterval
-        )
-    }
+    UIClickHelper(
+        currentTimeProvider = currentTimeProvider,
+        minimumClickInterval = minimumClickInterval
+    )
+}
 
-
-fun Modifier.debouncedFieldClick(
-    pointerInputKey: Boolean,
-    onClick: (position: Offset) -> Unit
-) = composed {
-    val uiClickHelper = rememberUIClickHelper()
-    val lifeCycle = LocalLifecycleOwner.current
-    this.pointerInput(pointerInputKey) {
-        detectTapGestures { position ->
-            uiClickHelper.debounceWithoutDelay(
-                lifecycle = lifeCycle.lifecycle,
-                event = { onClick(position) })
+fun Modifier.debouncedFieldClick(pointerInputKey: Boolean, onClick: (position: Offset) -> Unit) =
+    composed {
+        val uiClickHelper = rememberUIClickHelper()
+        val lifeCycle = LocalLifecycleOwner.current
+        this.pointerInput(pointerInputKey) {
+            detectTapGestures { position ->
+                uiClickHelper.debounceWithoutDelay(
+                    lifecycle = lifeCycle.lifecycle,
+                    event = { onClick(position) }
+                )
+            }
         }
     }
-}

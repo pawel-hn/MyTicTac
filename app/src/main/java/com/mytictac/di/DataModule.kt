@@ -24,41 +24,33 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
-
     @Provides
     @Singleton
     fun provideGameOptions(): GameOptionsService = AndroidGameOptionsService()
 
     @Provides
     @Singleton
-    fun provideDataStoreManager(
-        @ApplicationContext appContext: Context,
-    ): DataStoreManager = AndroidDataStoreManager(appContext)
+    fun provideDataStoreManager(@ApplicationContext appContext: Context): DataStoreManager =
+        AndroidDataStoreManager(appContext)
 
     @Provides
     @Singleton
-    fun provideSaveGameUseCase(
-        dataStoreManager: DataStoreManager
-    ): SaveGameUseCase = AndroidSaveGameUseCase(dataStoreManager)
+    fun provideSaveGameUseCase(dataStoreManager: DataStoreManager): SaveGameUseCase =
+        AndroidSaveGameUseCase(dataStoreManager)
 
     @Provides
     @Singleton
-    fun provideLoadGameUseCase(
-        dataStoreManager: DataStoreManager
-    ): LoadGameUseCase = AndroidLoadGameUseCase(dataStoreManager)
-
+    fun provideLoadGameUseCase(dataStoreManager: DataStoreManager): LoadGameUseCase =
+        AndroidLoadGameUseCase(dataStoreManager)
 }
 
 @Module
 @InstallIn(ViewModelComponent::class)
 object DataModuleScoped {
-
     @ViewModelScoped
     @Provides
-    fun provideIsSavedGameUseCase(
-        dataStoreManager: DataStoreManager
-    ): IsSavedGameUseCase = AndroidIsSavedGameUseCase(dataStoreManager)
-
+    fun provideIsSavedGameUseCase(dataStoreManager: DataStoreManager): IsSavedGameUseCase =
+        AndroidIsSavedGameUseCase(dataStoreManager)
 
     @ViewModelScoped
     @Provides

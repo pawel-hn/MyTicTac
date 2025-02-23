@@ -1,6 +1,5 @@
 package com.mytictac.game.compose
 
-
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -43,10 +42,7 @@ import com.mytictac.ui.theme.Padding
 const val STANDARD_ANIMATION_DURATION = 500
 
 @Composable
-fun TicTacScreen(
-    viewModel: GameViewModel,
-    router: GameRouter,
-) {
+fun TicTacScreen(viewModel: GameViewModel, router: GameRouter) {
     val gameDialog = rememberSaveable { mutableStateOf<GameDialog?>(null) }
     val animationEvent = remember { mutableStateOf<AnimationEvent?>(null) }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -107,10 +103,11 @@ fun TicTacScreen(
                     state = result
                 )
                 ScreenShotView(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .weight(1F)
                         .background(color = MyTicTacTheme.colours.backgroundScreen),
-                    screenShotViewController = viewModel.screenShotViewController,
+                    screenShotViewController = viewModel.screenShotViewController
                 ) {
                     GameField(
                         modifier = Modifier,
@@ -123,7 +120,7 @@ fun TicTacScreen(
 
                 IconButton(
                     onClick = viewModel::onShareClick,
-                    modifier = Modifier.padding(Padding.medium),
+                    modifier = Modifier.padding(Padding.medium)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
@@ -133,7 +130,7 @@ fun TicTacScreen(
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = Padding.large),
-                    horizontalArrangement = Arrangement.SpaceAround,
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     TicTacButton(
                         width = 120.dp,

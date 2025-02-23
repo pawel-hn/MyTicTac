@@ -4,11 +4,17 @@ import com.mytictac.data.Field
 
 sealed interface GameUIEvents {
     data object ResetGame : GameUIEvents
+
     data class VictoryLine(val winningFields: Set<Field>) : GameUIEvents
+
     data class ComputerMove(val fieldId: Int) : GameUIEvents
+
     data class GameLoaded(val fields: Set<Field>) : GameUIEvents
+
     data class ShowDialog(val dialog: GameDialog) : GameUIEvents
+
     data class ShowToast(val toast: GameToast) : GameUIEvents
+
     data object NavigateToMainScreen : GameUIEvents
 }
 

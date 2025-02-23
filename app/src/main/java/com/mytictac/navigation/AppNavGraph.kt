@@ -7,17 +7,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mytictac.start.StartRouter
-import com.mytictac.start.compose.StartScreen
-import com.mytictac.start.StartScreenViewModel
 import com.mytictac.game.GameRouter
 import com.mytictac.game.GameViewModel
 import com.mytictac.game.GameViewModelArguments
 import com.mytictac.game.compose.TicTacScreen
-
+import com.mytictac.start.StartRouter
+import com.mytictac.start.StartScreenViewModel
+import com.mytictac.start.compose.StartScreen
 
 enum class Screen {
-    START, GAME
+    START,
+    GAME
 }
 
 object NavArguments {
@@ -36,7 +36,8 @@ fun AppNavGraph() {
             val viewModel: StartScreenViewModel = hiltViewModel()
             StartScreen(
                 viewModel = viewModel,
-                router = object : StartRouter {
+                router =
+                object : StartRouter {
                     override fun onStartGame() {
                         navController.navigate(Screen.GAME.name)
                     }
@@ -44,7 +45,7 @@ fun AppNavGraph() {
                     override fun onLoadGame() {
                         navController.navigate(
                             Screen.GAME.name +
-                                    "?${NavArguments.LOAD_GAME}=true"
+                                "?${NavArguments.LOAD_GAME}=true"
                         )
                     }
                 }
@@ -52,7 +53,8 @@ fun AppNavGraph() {
         }
         composable(
             route = Screen.GAME.name + "?${NavArguments.LOAD_GAME}={${NavArguments.LOAD_GAME}}",
-            arguments = listOf(
+            arguments =
+            listOf(
                 navArgument(name = NavArguments.LOAD_GAME) {
                     type = NavType.BoolType
                     defaultValue = false
@@ -62,7 +64,8 @@ fun AppNavGraph() {
             val viewModel: GameViewModel = hiltViewModel()
             TicTacScreen(
                 viewModel = viewModel,
-                router = object : GameRouter {
+                router =
+                object : GameRouter {
                     override fun backToMainScreen() {
                         navController.navigateUp()
                     }

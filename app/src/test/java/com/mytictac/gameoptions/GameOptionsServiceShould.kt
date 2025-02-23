@@ -21,90 +21,95 @@ class GameOptionsServiceShould {
     }
 
     @Test
-    fun `initial game options should be defaultGameOptions`() = runTest {
-
-        // then
-        assertEquals(defaultGameOptions, sut.gameOptions.first())
-    }
-
-    @Test
-    fun `onPlayerCountChanged false should update gameOptions for multiPlayer`() = runTest {
-        // Given
-        val singlePlayer = false
-
-        // when
-        sut.setSinglePlayer(singlePlayer)
-
-        val result = sut.gameOptions.value
-
-        assertEquals(false, result.singlePlayer)
-        assertEquals(Participant.Human, result.cross.participant)
-        assertEquals(Participant.Human, result.circle.participant)
-    }
+    fun `initial game options should be defaultGameOptions`() =
+        runTest {
+            // then
+            assertEquals(defaultGameOptions, sut.gameOptions.first())
+        }
 
     @Test
-    fun `onPlayerCountChanged false should update gameOptions for singlePlayer`() = runTest {
-        // Given
-        val singlePlayer = true
+    fun `onPlayerCountChanged false should update gameOptions for multiPlayer`() =
+        runTest {
+            // Given
+            val singlePlayer = false
 
-        // when
-        sut.setSinglePlayer(singlePlayer)
+            // when
+            sut.setSinglePlayer(singlePlayer)
 
-        val result = sut.gameOptions.value
+            val result = sut.gameOptions.value
 
-        assertEquals(true, result.singlePlayer)
-        assertEquals(Participant.Human, result.circle.participant)
-        assertEquals(Participant.Computer, result.cross.participant)
-    }
-
-    @Test
-    fun `onDifficultyChanged should update gameOptions difficultyLevel`() = runTest {
-        // Given
-        val difficultyLevel = DifficultyLevel.IMPOSSIBLE
-
-        // When
-        sut.onDifficultyChanged(difficultyLevel)
-
-        // Then
-        val result = sut.gameOptions.first()
-        assertEquals(difficultyLevel, result.difficultyLevel)
-    }
+            assertEquals(false, result.singlePlayer)
+            assertEquals(Participant.Human, result.cross.participant)
+            assertEquals(Participant.Human, result.circle.participant)
+        }
 
     @Test
-    fun `onFirstPlayerChanged should update gameOptions firstPlayer`() = runTest {
-        // Given
-        val firstPlayer = FirstPLayer.Cross
+    fun `onPlayerCountChanged false should update gameOptions for singlePlayer`() =
+        runTest {
+            // Given
+            val singlePlayer = true
 
-        // When
-        sut.onFirstPlayerChanged(firstPlayer)
+            // when
+            sut.setSinglePlayer(singlePlayer)
 
-        // Then
-        val result = sut.gameOptions.first()
-        assertEquals(firstPlayer, result.firstPlayer)
-    }
+            val result = sut.gameOptions.value
+
+            assertEquals(true, result.singlePlayer)
+            assertEquals(Participant.Human, result.circle.participant)
+            assertEquals(Participant.Computer, result.cross.participant)
+        }
 
     @Test
-    fun `onFirstPlayerChanged should update players based on singlePlayer mode`() = runTest {
-        // Given
-        val firstPlayer = FirstPLayer.Cross
-        val singlePlayer = true
+    fun `onDifficultyChanged should update gameOptions difficultyLevel`() =
+        runTest {
+            // Given
+            val difficultyLevel = DifficultyLevel.IMPOSSIBLE
 
-        // When
-        sut.setSinglePlayer(singlePlayer)
-        sut.onFirstPlayerChanged(firstPlayer)
+            // When
+            sut.onDifficultyChanged(difficultyLevel)
 
-        // Then
-        val result = sut.gameOptions.first()
-        assertEquals(firstPlayer, result.firstPlayer)
-        assertEquals(Participant.Computer, result.cross.participant)
-        assertEquals(Participant.Human, result.circle.participant)
+            // Then
+            val result = sut.gameOptions.first()
+            assertEquals(difficultyLevel, result.difficultyLevel)
+        }
 
-        // and then
-        sut.setSinglePlayer(!singlePlayer)
+    @Test
+    fun `onFirstPlayerChanged should update gameOptions firstPlayer`() =
+        runTest {
+            // Given
+            val firstPlayer = FirstPLayer.Cross
 
-        val result2 = sut.gameOptions.first()
-        assertEquals(FirstPLayer.Circle, result2.firstPlayer)
-        assertEquals(Participant.Human, result2.circle.participant)
-        assertEquals(Participant.Human, result2.cross.participant)
-    }
+            // When
+            sut.onFirstPlayerChanged(firstPlayer)
+
+            // Then
+            val result = sut.gameOptions.first()
+            assertEquals(firstPlayer, result.firstPlayer)
+        }
+
+    @Test
+    fun `onFirstPlayerChanged should update players based on singlePlayer mode`() =
+        runTest {
+            // Given
+            val firstPlayer = FirstPLayer.Cross
+            val singlePlayer = true
+
+            // When
+            sut.setSinglePlayer(singlePlayer)
+            sut.onFirstPlayerChanged(firstPlayer)
+
+            // Then
+            val result = sut.gameOptions.first()
+            assertEquals(firstPlayer, result.firstPlayer)
+            assertEquals(Participant.Computer, result.cross.participant)
+            assertEquals(Participant.Human, result.circle.participant)
+
+            // and then
+            sut.setSinglePlayer(!singlePlayer)
+
+            val result2 = sut.gameOptions.first()
+            assertEquals(FirstPLayer.Circle, result2.firstPlayer)
+            assertEquals(Participant.Human, result2.circle.participant)
+            assertEquals(Participant.Human, result2.cross.participant)
+        }
 }

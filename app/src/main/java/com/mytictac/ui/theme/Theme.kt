@@ -6,10 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 
 @Composable
-fun MyTicTacTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun MyTicTacTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalTicTacColors provides if (darkTheme) TicTacDarkColors else TicTacLightColors
     ) {
@@ -23,6 +20,7 @@ object MyTicTacTheme {
         get() = LocalTicTacColors.current
 }
 
-val LocalTicTacColors = staticCompositionLocalOf {
-    TicTacLightColors
-}
+val LocalTicTacColors =
+    staticCompositionLocalOf {
+        TicTacLightColors
+    }

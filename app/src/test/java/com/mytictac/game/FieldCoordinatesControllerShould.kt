@@ -1,10 +1,10 @@
 package com.mytictac.game
 
-import org.junit.Assert.*
-import org.junit.Test
 import androidx.compose.ui.geometry.Offset
 import com.mytictac.data.Field
 import com.mytictac.game.compose.FieldCoordinatesController
+import org.junit.Assert.*
+import org.junit.Test
 
 class FieldCoordinatesControllerTest {
     private val center = Offset(50f, 50f)
@@ -58,7 +58,7 @@ class FieldCoordinatesControllerTest {
         val end = controller.getFieldXYFromId(Field.Seven)
         val line = controller.getWinningLine(start, end)
 
-        assertEquals(start.bottomRight.x, line.first.x )
+        assertEquals(start.bottomRight.x, line.first.x)
         assertEquals(end.topLeft.x, line.second.x)
     }
 
@@ -72,4 +72,3 @@ class FieldCoordinatesControllerTest {
         assertEquals(end.bottomRight, line.second)
     }
 }
-

@@ -1,0 +1,13 @@
+root = true
+
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+ktlint_standard_enum-entry-name-case = disabled
+ktlint_standard_function-return-type-spacing = disabled
+ktlint_standard_filename = disabled
+
+[*/test/*.{kt,kts}]
+max_line_length = off
+
+[*Should*.{kt,kts}]
+max_line_length = off

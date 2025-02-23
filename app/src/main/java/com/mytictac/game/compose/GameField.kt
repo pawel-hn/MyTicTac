@@ -27,7 +27,7 @@ fun GameField(
     state: GameUIState.CurrentCurrentGameUI,
     animationEvent: AnimationEvent?,
     onTap: (Int) -> Unit,
-    setDefault: () -> Unit,
+    setDefault: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val animations by remember { mutableStateOf(emptyAnimations()) }
@@ -69,15 +69,17 @@ fun GameField(
     BoxWithConstraints(
         modifier = modifier
     ) {
-        val centerOffset = remember {
-            Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
-        }
+        val centerOffset =
+            remember {
+                Offset(x = constraints.maxWidth / 2F, y = constraints.maxHeight / 2F)
+            }
         val lineLength = remember { constraints.maxWidth * 0.7F }
         val fieldCoordinatesController =
             rememberFieldCoordinatesController(centerOffset, lineLength)
 
         Canvas(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .debouncedFieldClick(
                     pointerInputKey = true,
@@ -112,12 +114,15 @@ fun GameField(
             }
 
             if (animationEvent is AnimationEvent.AnimateWinningLine) {
-                val winningLine = fieldCoordinatesController.getWinningLine(
-                    start = fieldCoordinatesController
-                        .getFieldXYFromId(animationEvent.winningFields.first()),
-                    end = fieldCoordinatesController
-                        .getFieldXYFromId(animationEvent.winningFields.last())
-                )
+                val winningLine =
+                    fieldCoordinatesController.getWinningLine(
+                        start =
+                        fieldCoordinatesController
+                            .getFieldXYFromId(animationEvent.winningFields.first()),
+                        end =
+                        fieldCoordinatesController
+                            .getFieldXYFromId(animationEvent.winningFields.last())
+                    )
 
                 if (winningLineAnimation.value > 0F) {
                     drawLine(
@@ -136,7 +141,8 @@ fun CoroutineScope.animateFloatToOne(animatable: Animatable<Float, AnimationVect
     launch {
         animatable.animateTo(
             targetValue = 20f,
-            animationSpec = tween(
+            animationSpec =
+            tween(
                 durationMillis = STANDARD_ANIMATION_DURATION
             )
         )
@@ -147,18 +153,21 @@ fun emptyAnimations(): List<Animatable<Float, AnimationVector1D>> {
     return List(9) { Animatable(1f) }
 }
 
-private val animationIndexMap = mapOf(
-    11 to 0, 12 to 1, 13 to 2,
-    21 to 3, 22 to 4, 23 to 5,
-    31 to 6, 32 to 7, 33 to 8
-)
+private val animationIndexMap =
+    mapOf(
+        11 to 0, 12 to 1, 13 to 2,
+        21 to 3, 22 to 4, 23 to 5,
+        31 to 6, 32 to 7, 33 to 8
+    )
 
 fun getAnimationIndex(id: Int) = animationIndexMap[id] ?: -1
 
-
 sealed interface AnimationEvent {
     data class GameLoaded(val fields: Set<Field>) : AnimationEvent
+
     data object ResetAnimations : AnimationEvent
+
     data class AnimateWinningLine(val winningFields: Set<Field>) : AnimationEvent
+
     data class AnimateComputerMove(val fieldId: Int) : AnimationEvent
 }

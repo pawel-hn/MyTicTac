@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
 
                 MyTicTacTheme {
                     Crossfade(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxSize()
                             .background(color = MyTicTacTheme.colours.backgroundScreen)
                             .statusBarsPadding()

@@ -1,6 +1,5 @@
 package com.mytictac.start
 
-import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -10,6 +9,7 @@ import com.mytictac.data.FirstPLayer
 import com.mytictac.data.gameoptions.GameOptionsService
 import com.mytictac.data.savegame.IsSavedGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,15 +19,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
 
 @HiltViewModel
-class StartScreenViewModel @Inject constructor(
+class StartScreenViewModel
+@Inject
+constructor(
     private val gameOptionsService: GameOptionsService,
     private val isSavedGameUseCase: IsSavedGameUseCase
 ) : ViewModel(), DefaultLifecycleObserver {
-
     private val _startScreenEvent = Channel<StartScreenUIEvent>()
     val startScreenEvent: Flow<StartScreenUIEvent> = _startScreenEvent.receiveAsFlow()
     private val loadButtonEnabled = MutableStateFlow(false)
@@ -39,7 +38,8 @@ class StartScreenViewModel @Inject constructor(
         ) { options, loadButton ->
             StartScreenUIState(
                 singlePLayer = options.singlePlayer,
-                startScreenFirstPlayerUI = when (options.firstPlayer) {
+                startScreenFirstPlayerUI =
+                when (options.firstPlayer) {
                     FirstPLayer.Circle -> StartScreenFirstPlayerUI.Circle
                     FirstPLayer.Cross -> StartScreenFirstPlayerUI.Cross
                 },
@@ -56,11 +56,14 @@ class StartScreenViewModel @Inject constructor(
         getSavedGame()
     }
 
-    fun onPlayerCountChanged(isSinglePlayer: Boolean) =
-        gameOptionsService.setSinglePlayer(isSinglePlayer)
+    fun onPlayerCountChanged(isSinglePlayer: Boolean) = gameOptionsService.setSinglePlayer(
+        isSinglePlayer
+    )
 
     fun onDifficultyChanged(difficultyLevel: DifficultyLevel) =
-        gameOptionsService.onDifficultyChanged(difficultyLevel)
+        gameOptionsService.onDifficultyChanged(
+            difficultyLevel
+        )
 
     fun onFirstPlayerChanged(player: StartScreenFirstPlayerUI) =
         gameOptionsService.onFirstPlayerChanged(

@@ -45,12 +45,13 @@ class GameViewModelShould {
     private val defaultSavedStateHandle =
         SavedStateHandle(mapOf(GameViewModelArguments.LOAD_GAME to false))
 
-    private val gameState = CurrentGame(
-        currentPLayer = Player.Cross(Participant.Human),
-        cross = PlayerState(Player.Cross(Participant.Human), emptySet()),
-        circle = PlayerState(Player.Cross(Participant.Human), emptySet()),
-        isGameRunning = true
-    )
+    private val gameState =
+        CurrentGame(
+            currentPLayer = Player.Cross(Participant.Human),
+            cross = PlayerState(Player.Cross(Participant.Human), emptySet()),
+            circle = PlayerState(Player.Cross(Participant.Human), emptySet()),
+            isGameRunning = true
+        )
     private val gameStateFlow = MutableStateFlow(gameState)
 
     private val gameEventFlow = MutableSharedFlow<GameEvent>()
@@ -66,114 +67,123 @@ class GameViewModelShould {
     }
 
     @Test
-    fun `should emit correct UI state when gameEngine state changes`() = runTest {
-        // given
-        every { mockGameEngine.state } returns gameStateFlow
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
+    fun `should emit correct UI state when gameEngine state changes`() =
+        runTest {
+            // given
+            every { mockGameEngine.state } returns gameStateFlow
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-
-        // then
-        advanceUntilIdle()
-        val state = sut.state.first()
-        assertEquals(
-            GameUIState.CurrentCurrentGameUI(
-                currentPLayer = gameState.currentPLayer,
-                cross = gameState.cross,
-                circle = gameState.circle
-            ), state
-        )
-    }
-
-    @Test
-    fun `should emit ComputerMove event when gameEngine emits ComputerMove`() = runTest {
-        // given
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
-
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
-
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            // then
+            advanceUntilIdle()
+            val state = sut.state.first()
+            assertEquals(
+                GameUIState.CurrentCurrentGameUI(
+                    currentPLayer = gameState.currentPLayer,
+                    cross = gameState.cross,
+                    circle = gameState.circle
+                ),
+                state
+            )
         }
 
-        // when
-        gameEventFlow.emit(GameEvent.ComputerMove(fieldId = Field.One.id))
-
-        // then
-        assertEquals(GameUIEvents.ComputerMove(Field.One.id), events.first())
-        assertEquals(1, events.size)
-
-        job.cancel()
-    }
-
     @Test
-    fun `should emit VictoryLine event when gameEngine emits GameEnd with winner`() = runTest {
-        // given
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
+    fun `should emit ComputerMove event when gameEngine emits ComputerMove`() =
+        runTest {
+            // given
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+
+            // when
+            gameEventFlow.emit(GameEvent.ComputerMove(fieldId = Field.One.id))
+
+            // then
+            assertEquals(GameUIEvents.ComputerMove(Field.One.id), events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
         }
 
-        // when
-        gameEventFlow.emit(GameEvent.GameEnd(result = GameEndResult.Cross, victories.first()))
-
-        // then
-        assertEquals(GameUIEvents.VictoryLine(victories.first()), events.first())
-        assertEquals(1, events.size)
-
-        job.cancel()
-    }
-
     @Test
-    fun `should not emit VictoryLine event when game ends in a draw`() = runTest {
-        // given
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
+    fun `should emit VictoryLine event when gameEngine emits GameEnd with winner`() =
+        runTest {
+            // given
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+
+            // when
+            gameEventFlow.emit(GameEvent.GameEnd(result = GameEndResult.Cross, victories.first()))
+
+            // then
+            assertEquals(GameUIEvents.VictoryLine(victories.first()), events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
         }
 
-        // when
-        gameEventFlow.emit(GameEvent.GameEnd(result = GameEndResult.Draw, emptySet()))
-
-        // then
-        assertEquals(0, events.size)
-
-        job.cancel()
-    }
-
     @Test
-    fun `should emit showDialog event when on gesture back and game is running`() = runTest {
-        // given
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
+    fun `should not emit VictoryLine event when game ends in a draw`() =
+        runTest {
+            // given
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+
+            // when
+            gameEventFlow.emit(GameEvent.GameEnd(result = GameEndResult.Draw, emptySet()))
+
+            // then
+            assertEquals(0, events.size)
+
+            job.cancel()
         }
 
-        // when
-        sut.onGestureBack()
+    @Test
+    fun `should emit showDialog event when on gesture back and game is running`() =
+        runTest {
+            // given
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        // then
-        assertEquals(GameUIEvents.ShowDialog(GameDialog.CancelGame), events.first())
-        assertEquals(1, events.size)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-        job.cancel()
-    }
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+
+            // when
+            sut.onGestureBack()
+
+            // then
+            assertEquals(GameUIEvents.ShowDialog(GameDialog.CancelGame), events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
+        }
 
     @Test
     fun `should emit navigateToMainScreen event when on gesture back and game is not running`() =
@@ -186,9 +196,10 @@ class GameViewModelShould {
                 GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
             val events = mutableListOf<GameUIEvents>()
-            val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-                sut.event.toList(events)
-            }
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
 
             // when
             gameStateFlow.value = gameState.copy(isGameRunning = false)
@@ -202,54 +213,58 @@ class GameViewModelShould {
         }
 
     @Test
-    fun `should emit ResetGame event when reset is clicked`() = runTest {
-        // given
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
+    fun `should emit ResetGame event when reset is clicked`() =
+        runTest {
+            // given
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, defaultSavedStateHandle)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+            advanceUntilIdle()
+
+            // when
+            sut.reset()
+
+            // then
+            assertEquals(GameUIEvents.ResetGame, events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
         }
-        advanceUntilIdle()
-
-        // when
-        sut.reset()
-
-        // then
-        assertEquals(GameUIEvents.ResetGame, events.first())
-        assertEquals(1, events.size)
-
-        job.cancel()
-    }
 
     @Test
-    fun `should load game when loadGame is true`() = runTest {
-        // given
-        val loadedFields = setOf(Field.One, Field.Five, Field.Six)
-        every { mockGameEngine.gameEvent } returns gameEventFlow
-        every { mockGameEngine.state } returns gameStateFlow
+    fun `should load game when loadGame is true`() =
+        runTest {
+            // given
+            val loadedFields = setOf(Field.One, Field.Five, Field.Six)
+            every { mockGameEngine.gameEvent } returns gameEventFlow
+            every { mockGameEngine.state } returns gameStateFlow
 
-        val savedStateHandleLoadGame =
-            SavedStateHandle(mapOf(GameViewModelArguments.LOAD_GAME to true))
+            val savedStateHandleLoadGame =
+                SavedStateHandle(mapOf(GameViewModelArguments.LOAD_GAME to true))
 
-        sut = GameViewModel(mockGameEngine, mockScreenShotViewController, savedStateHandleLoadGame)
+            sut = GameViewModel(mockGameEngine, mockScreenShotViewController, savedStateHandleLoadGame)
 
-        val events = mutableListOf<GameUIEvents>()
-        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            sut.event.toList(events)
+            val events = mutableListOf<GameUIEvents>()
+            val job =
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                    sut.event.toList(events)
+                }
+
+            // when
+            gameEventFlow.emit(GameEvent.GameLoaded(loadedFields))
+
+            // then
+            coVerify(exactly = 1) { mockGameEngine.loadGame() }
+            assertEquals(GameUIEvents.GameLoaded(loadedFields), events.first())
+            assertEquals(1, events.size)
+
+            job.cancel()
         }
-
-        // when
-        gameEventFlow.emit(GameEvent.GameLoaded(loadedFields))
-
-        // then
-        coVerify(exactly = 1) { mockGameEngine.loadGame() }
-        assertEquals(GameUIEvents.GameLoaded(loadedFields), events.first())
-        assertEquals(1, events.size)
-
-        job.cancel()
-    }
 }

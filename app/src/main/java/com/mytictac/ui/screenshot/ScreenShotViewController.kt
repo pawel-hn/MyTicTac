@@ -8,30 +8,28 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.core.content.ContextCompat.startActivities
 import androidx.core.content.FileProvider
+import java.io.File
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import java.io.File
-import kotlin.coroutines.resume
 
 enum class TakeAndShareScreenshotResult {
     ScreenShotShareSuccess,
-    ScreenShotShareFail,
+    ScreenShotShareFail
 }
 
 class ScreenShotViewController {
-
-    private val _events = Channel<ScreenShotViewUIEvents>(
-        capacity = Channel.UNLIMITED
-    )
+    private val _events =
+        Channel<ScreenShotViewUIEvents>(
+            capacity = Channel.UNLIMITED
+        )
     internal val events: Flow<ScreenShotViewUIEvents> = _events.receiveAsFlow()
 
-    suspend fun takeAndShareScreenShot(
-        screenshotFileName: String
-    ): TakeAndShareScreenshotResult {
+    suspend fun takeAndShareScreenShot(screenshotFileName: String): TakeAndShareScreenshotResult {
         val graphicsLayerAndContext = getGraphicsLayerAndContext()
         return takeAndShareScreenshot(
             graphicsLayer = graphicsLayerAndContext.first,
@@ -63,10 +61,11 @@ class ScreenShotViewController {
         } else {
             try {
                 val bitmap = graphicsLayer.toImageBitmap()
-                val uri = bitmap.asAndroidBitmap().saveToCacheAndGetUri(
-                    context,
-                    screenshotFileName
-                )
+                val uri =
+                    bitmap.asAndroidBitmap().saveToCacheAndGetUri(
+                        context,
+                        screenshotFileName
+                    )
                 if (uri == null) {
                     TakeAndShareScreenshotResult.ScreenShotShareFail
                 } else {
@@ -86,7 +85,6 @@ class ScreenShotViewController {
         Dispatchers.IO
     ) {
         return@withContext try {
-
             val dir = File(context.cacheDir, "screenshots").apply { mkdirs() }
             val file = File(dir, "$screenshotFileName.png")
 
@@ -101,18 +99,18 @@ class ScreenShotViewController {
     }
 
     private fun shareBitmap(context: Context, uri: Uri) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "image/png"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
+        val intent =
+            Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
         startActivities(context, arrayOf(intent))
     }
 }
 
 sealed interface ScreenShotViewUIEvents {
-
     data class GetCurrentGraphicsLayerAndContext(
         val onCurrentGraphicsLayerAndContext: (GraphicsLayer?, Context) -> Unit
     ) : ScreenShotViewUIEvents

@@ -11,5 +11,5 @@ data class GameOptions(
     val firstPlayer: FirstPLayer,
     val difficultyLevel: DifficultyLevel,
     val cross: Player.Cross,
-    val circle: Player.Circle,
+    val circle: Player.Circle
 )

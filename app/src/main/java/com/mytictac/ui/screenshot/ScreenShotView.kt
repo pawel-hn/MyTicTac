@@ -29,7 +29,8 @@ fun ScreenShotView(
     }
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .drawWithContent {
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()

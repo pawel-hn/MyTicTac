@@ -9,6 +9,10 @@ import com.mytictac.gameengine.GameEvent
 import com.mytictac.ui.screenshot.ScreenShotViewController
 import com.mytictac.ui.screenshot.TakeAndShareScreenshotResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDateTime
+import java.time.format.TextStyle
+import java.util.Locale
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,22 +21,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.TextStyle
-import java.util.Locale
-import javax.inject.Inject
 
 object GameViewModelArguments {
     const val LOAD_GAME = "loadGame"
 }
 
 @HiltViewModel
-class GameViewModel @Inject constructor(
+class GameViewModel
+@Inject
+constructor(
     private val gameEngine: GameEngine,
     val screenShotViewController: ScreenShotViewController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     private val loadGame: Boolean = savedStateHandle[GameViewModelArguments.LOAD_GAME] ?: false
 
     private val _state = MutableStateFlow<GameUIState>(GameUIState.Loading)
@@ -45,11 +46,12 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch {
             delay(1000)
             gameEngine.state.collect {
-                _state.value = GameUIState.CurrentCurrentGameUI(
-                    currentPLayer = it.currentPLayer,
-                    cross = it.cross,
-                    circle = it.circle,
-                )
+                _state.value =
+                    GameUIState.CurrentCurrentGameUI(
+                        currentPLayer = it.currentPLayer,
+                        cross = it.cross,
+                        circle = it.circle
+                    )
             }
         }
 
@@ -78,7 +80,6 @@ class GameViewModel @Inject constructor(
         }
     }
 
-
     fun onGestureBack() {
         viewModelScope.launch {
             if (isGameRunning()) {
@@ -91,9 +92,10 @@ class GameViewModel @Inject constructor(
 
     fun dialogConfirmClick(dialog: GameDialog) {
         viewModelScope.launch {
-           val event = when(dialog) {
-                GameDialog.CancelGame -> GameUIEvents.NavigateToMainScreen
-            }
+            val event =
+                when (dialog) {
+                    GameDialog.CancelGame -> GameUIEvents.NavigateToMainScreen
+                }
             _event.emit(event)
         }
     }
@@ -130,9 +132,10 @@ class GameViewModel @Inject constructor(
     fun onShareClick() {
         viewModelScope.launch {
             val time = dateToFormattedStringDayMonthYear(LocalDateTime.now())
-            val shareGameResult = screenShotViewController.takeAndShareScreenShot(
-                screenshotFileName = "TicTac $time"
-            )
+            val shareGameResult =
+                screenShotViewController.takeAndShareScreenShot(
+                    screenshotFileName = "TicTac $time"
+                )
             if (shareGameResult == TakeAndShareScreenshotResult.ScreenShotShareFail) {
                 _event.emit(GameUIEvents.ShowToast(GameToast.ScreenSharedFail))
             }
@@ -144,8 +147,9 @@ class GameViewModel @Inject constructor(
 
 fun dateToFormattedStringDayMonthYear(dateTime: LocalDateTime): String {
     val deviceLocale = Locale.UK
-    return dateTime.dayOfMonth.toString() + " " + dateTime.month.getDisplayName(
-        TextStyle.SHORT,
-        deviceLocale
-    ) + " " + dateTime.year.toString() + ", " + "HH:mm".format(dateTime)
+    return dateTime.dayOfMonth.toString() + " " +
+        dateTime.month.getDisplayName(
+            TextStyle.SHORT,
+            deviceLocale
+        ) + " " + dateTime.year.toString() + ", " + "HH:mm".format(dateTime)
 }

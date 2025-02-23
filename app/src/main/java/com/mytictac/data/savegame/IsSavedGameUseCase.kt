@@ -6,7 +6,9 @@ interface IsSavedGameUseCase {
     suspend fun invoke(): Boolean
 }
 
-class AndroidIsSavedGameUseCase @Inject constructor(
+class AndroidIsSavedGameUseCase
+@Inject
+constructor(
     private val dataStoreManager: DataStoreManager
 ) : IsSavedGameUseCase {
     override suspend fun invoke(): Boolean {

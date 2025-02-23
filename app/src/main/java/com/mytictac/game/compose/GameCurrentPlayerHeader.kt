@@ -26,10 +26,7 @@ import com.mytictac.game.GameUIState
 import com.mytictac.ui.theme.MyTicTacTheme
 
 @Composable
-fun GameCurrentPlayerHeader(
-    modifier: Modifier,
-    state: GameUIState.CurrentCurrentGameUI
-) {
+fun GameCurrentPlayerHeader(modifier: Modifier, state: GameUIState.CurrentCurrentGameUI) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -47,25 +44,29 @@ fun GameCurrentPlayerHeader(
             targetState = state.currentPLayer,
             label = "current player",
             transitionSpec = {
-                (slideInVertically(tween(200)) { height ->
-                    height
-                } togetherWith
+                (
+                    slideInVertically(tween(200)) { height ->
+                        height
+                    } togetherWith
                         slideOutVertically(tween(200)) { height ->
                             -height
-                        }).using(
+                        }
+                    ).using(
                     SizeTransform(true)
                 )
             }
         ) { player ->
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(40.dp)
                     .drawBehind {
                         when (player) {
                             is Player.Cross -> {
                                 drawCross(
                                     topLeft = Offset.Zero,
-                                    bottomRight = Offset(
+                                    bottomRight =
+                                    Offset(
                                         40.dp.toPx(),
                                         40.dp.toPx()
                                     ),
@@ -77,7 +78,8 @@ fun GameCurrentPlayerHeader(
                             is Player.Circle -> {
                                 drawTicCircle(
                                     topLeft = Offset.Zero,
-                                    bottomRight = Offset(
+                                    bottomRight =
+                                    Offset(
                                         40.dp.toPx(),
                                         40.dp.toPx()
                                     ),

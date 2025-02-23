@@ -30,7 +30,7 @@ fun StartOptions(
     singlePlayer: Boolean,
     startScreenFirstPlayerUI: StartScreenFirstPlayerUI,
     onDifficultyChanged: (DifficultyLevel) -> Unit,
-    onPlayerChanged: (StartScreenFirstPlayerUI) -> Unit,
+    onPlayerChanged: (StartScreenFirstPlayerUI) -> Unit
 ) {
     AnimatedContent(
         modifier = modifier,
@@ -38,10 +38,10 @@ fun StartOptions(
         transitionSpec = {
             if (targetState > initialState) {
                 slideInHorizontally { width -> width } togetherWith
-                        slideOutHorizontally { width -> -width }
+                    slideOutHorizontally { width -> -width }
             } else {
                 slideInHorizontally { width -> -width } togetherWith
-                        slideOutHorizontally { width -> width }
+                    slideOutHorizontally { width -> width }
             }.using(
                 SizeTransform(clip = false)
             )
@@ -65,7 +65,7 @@ fun StartOptions(
                         onClick = { onDifficultyChanged(level) },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
                         enabledSecondaryColor =
-                        MyTicTacTheme.colours.interactiveTertiaryContent,
+                        MyTicTacTheme.colours.interactiveTertiaryContent
                     )
                 }
             }
@@ -86,7 +86,7 @@ fun StartOptions(
                         onClick = { onPlayerChanged(player) },
                         enabledPrimaryColor = MyTicTacTheme.colours.interactiveTertiary,
                         enabledSecondaryColor =
-                        MyTicTacTheme.colours.interactiveTertiaryContent,
+                        MyTicTacTheme.colours.interactiveTertiaryContent
                     )
                 }
             }

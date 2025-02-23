@@ -19,15 +19,14 @@ val corners = setOf(Field.One, Field.Three, Field.Seven, Field.Nine)
 val center = Field.Five
 val edges = setOf(Field.Two, Field.Four, Field.Six, Field.Eight)
 
-val victories = setOf(
-    setOf(Field.One, Field.Two, Field.Three),
-    setOf(Field.Four, Field.Five, Field.Six),
-    setOf(Field.Seven, Field.Eight, Field.Nine),
-
-    setOf(Field.One, Field.Four, Field.Seven),
-    setOf(Field.Two, Field.Five, Field.Eight),
-    setOf(Field.Three, Field.Six, Field.Nine),
-
-    setOf(Field.One, Field.Five, Field.Nine),
-    setOf(Field.Three, Field.Five, Field.Seven)
-)
+val victories =
+    setOf(
+        setOf(Field.One, Field.Two, Field.Three),
+        setOf(Field.Four, Field.Five, Field.Six),
+        setOf(Field.Seven, Field.Eight, Field.Nine),
+        setOf(Field.One, Field.Four, Field.Seven),
+        setOf(Field.Two, Field.Five, Field.Eight),
+        setOf(Field.Three, Field.Six, Field.Nine),
+        setOf(Field.One, Field.Five, Field.Nine),
+        setOf(Field.Three, Field.Five, Field.Seven)
+    )

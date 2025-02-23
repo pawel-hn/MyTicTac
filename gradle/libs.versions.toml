@@ -12,6 +12,7 @@ google-hilt = "2.55"
 hilt-compose-nav = "1.2.0"
 datastore = "1.1.2"
 kotlinJSONSerialisation = "1.7.3"
+ktlint = "12.1.1"
 
 #testing
 junit = "4.13.2"
@@ -19,6 +20,7 @@ robolectricVersion = "4.13"
 coroutinesVersion = "1.9.0"
 mockK = "1.13.13"
 uiTestJunit4Android = "1.7.8"
+
 
 
 [libraries]
@@ -53,6 +55,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-hilt = {id="com.google.dagger.hilt.android", version.ref="google-hilt"}
 kotlin-serialization = {id="org.jetbrains.kotlin.plugin.serialization", version.ref= "kotlin" }
+ktlint = {id="org.jlleitschuh.gradle.ktlint", version.ref="ktlint"}
 
 [bundles]
 testing = ["robolectric", "coroutines-test", "junit", "mockk"]

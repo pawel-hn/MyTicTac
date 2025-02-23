@@ -1,22 +1,20 @@
 package com.mytictac.data.savegame
 
 import com.mytictac.data.SaveGame
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import kotlinx.serialization.json.Json
 
 interface SaveGameUseCase {
-    suspend fun invoke(
-        savedGame: SaveGame
-    ): Result<Unit>
+    suspend fun invoke(savedGame: SaveGame): Result<Unit>
 }
 
-class AndroidSaveGameUseCase @Inject constructor(
+class AndroidSaveGameUseCase
+@Inject
+constructor(
     private val dataStoreManager: DataStoreManager,
-    private val json: Json = Json,
+    private val json: Json = Json
 ) : SaveGameUseCase {
-    override suspend fun invoke(
-        savedGame: SaveGame
-    ): Result<Unit> {
+    override suspend fun invoke(savedGame: SaveGame): Result<Unit> {
         return try {
             val data = json.encodeToString(SaveGame.serializer(), savedGame)
             dataStoreManager.store(
@@ -29,4 +27,3 @@ class AndroidSaveGameUseCase @Inject constructor(
         }
     }
 }
-
